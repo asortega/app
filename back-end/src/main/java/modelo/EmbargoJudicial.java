@@ -10,7 +10,7 @@ public class EmbargoJudicial extends Embargo{
 
 	private BigDecimal montoAEmbargar;
 	private String numOficio;
-	private ArrayList<Demandante> demandantes;
+	private ArrayList<Demandante> demandantes= new ArrayList<>();
 
 	public EmbargoJudicial(String idEmbargo, String idAutoridad, String numProceso, LocalDate fechaOficio,
 			TipoEmbargo tipoEmbargo, String numCuentaAgrario, String ciudadCuentaAgrario,

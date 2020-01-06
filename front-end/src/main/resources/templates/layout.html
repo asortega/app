@@ -72,10 +72,12 @@
 	  		 })
 	  	   $(".alertop").fadeTo(2000, 500).slideUp(500, function(){
         	    $(".alert-dismissible").alert('close');
-        	});
-	          
-	       	 
-	      }); 
+        	}); 	       	 
+	      });
+
+	      $(document).on('change', '.custom-file-input', function (event) {
+	    	    $(this).next('.custom-file-label').html(event.target.files[0].name);
+	    	})
   		</script>
 		
 	</footer>

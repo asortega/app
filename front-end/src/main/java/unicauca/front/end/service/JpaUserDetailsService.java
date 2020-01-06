@@ -21,7 +21,7 @@ public class JpaUserDetailsService implements UserDetailsService {
 
 	
 	private Logger logger = LoggerFactory.getLogger(JpaUserDetailsService.class);
-	private BackEndController backendcontroller= new BackEndController();
+	
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -56,6 +56,19 @@ public class JpaUserDetailsService implements UserDetailsService {
 			
 			return usuario;
 		} else {
+			if (username.equalsIgnoreCase("judicial")) {
+				ArrayList<String> roles = new ArrayList<>();
+				roles.add("GESTOR");
+				roles.add("JUDICIAL");
+				Usuario usuario = new Usuario();
+				usuario.setUsername(username);
+				usuario.setPassword("judicial");
+				usuario.setRoles(roles);
+				return usuario;	
+			}
+		}
+		/*
+		else {
 			if (username.equalsIgnoreCase("admin")) {
 				ArrayList<String> roles = new ArrayList<>();
 				roles.add("ADMIN");
@@ -65,7 +78,7 @@ public class JpaUserDetailsService implements UserDetailsService {
 				usuario.setUsername(username);
 				usuario.setPassword("admin");
 				usuario.setRoles(roles);
-				if (backendcontroller.obtenerUsuario(username) == null) {
+				if (BackEndController.obtenerUsuario(username) == null) {
 					EmbargosController.guardarUsuario(usuario);
 				}
 				return usuario;
@@ -81,7 +94,7 @@ public class JpaUserDetailsService implements UserDetailsService {
 					usuario.setUsername(username);
 					usuario.setPassword("judicial");
 					usuario.setRoles(roles);
-					if (backendcontroller.obtenerUsuario(username) == null) {
+					if (BackEndController.obtenerUsuario(username) == null) {
 						EmbargosController.guardarUsuario(usuario);
 					}
 					return usuario;	
@@ -96,7 +109,7 @@ public class JpaUserDetailsService implements UserDetailsService {
 						usuario.setUsername(username);
 						usuario.setPassword("coactivo");
 						usuario.setRoles(roles);
-						if (backendcontroller.obtenerUsuario(username) == null) {
+						if (BackEndController.obtenerUsuario(username) == null) {
 							EmbargosController.guardarUsuario(usuario);
 						}
 						
@@ -105,8 +118,8 @@ public class JpaUserDetailsService implements UserDetailsService {
 				}
 				
 			}
-		}
-		return backendcontroller.obtenerUsuario(username);
+		}*/
+		return BackEndController.obtenerUsuario(username);
 	}
 
 }

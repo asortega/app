@@ -12,12 +12,18 @@
 					<div class="btn-group" role="group" aria-label="Basic example">
 						<th:block th:switch="${boton}">
 							<th:block th:case="all">
-								<button id="set_file" type="button"
+								<!-- 
+								<button id="button" type="button"
 									class="btn btn-primary border-right border-dark"
-									onclick="window.location.href='/autoridad/judicial/gestor/cargar'">Cargar</button> -->
-								<span  class="btn btn-primary border-right border-dark btn-file">
-								    Cargar<input id="get_file" type="file" name="file">
-								</span>
+									onclick="window.location.href='/autoridad/judicial/gestor/cargar'">Cargar</button> 
+								
+								<span class="btn btn-primary border-right border-dark btn-file">
+									Cargar<input id="fileInput" type="file" name="file">
+								</span>-->
+								<!-- Button trigger modal -->
+								<button type="button" class="btn btn-primary border-right border-dark"
+									data-toggle="modal" data-target="#exampleModal">
+									Cargar</button>
 								<button type="submit" name="action" value="aplicar"
 									class="btn btn-primary border-right border-dark">Aplicar</button>
 								<button type="submit" name="action" value="consultar"
@@ -44,7 +50,11 @@
 
 		</div>
 	</nav>
-
+	<script type="text/javascript">
+	document.getElementById('button').addEventListener('click', () => {
+		  document.getElementById('fileInput').click()
+		})
+	</script>
 
 </body>
 </html>

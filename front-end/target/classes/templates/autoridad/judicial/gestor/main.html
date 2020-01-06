@@ -1,12 +1,48 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="layout :: head"></head>
 <body>
 	<!--Panel-->
 	<form action="#" th:action="@{/autoridad/judicial/gestor/form}"
 		th:object="${embargo}" method="post" enctype="multipart/form-data">
+		<!-- Modal -->
+		<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+			aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title" id="exampleModalLabel">Cargar Archivo
+							Excel</h6>
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="input-group mb-3">
+							<div class="custom-file">
+								<input type="file" class="custom-file-input" name="file"
+									id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+								<label class="custom-file-label" for="inputGroupFile01">Elegir
+									Archivo</label>
+							</div>
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary border-right border-dark"
+							data-dismiss="modal">Cancelar</button>
+						<button type="submit" name="action" value="cargar"
+							class="btn btn-primary border-right border-dark">Aceptar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
 		<nav th:replace="autoridad/judicial/gestor/navbar :: panel"></nav>
 		<div class="container-fluid" id="css-contenido">
+
 			<div th:replace="layout :: alerts"></div>
 			<div class="card border-dark bg-light" id="card-inicio">
 
@@ -23,14 +59,14 @@
 								class="form-control text-uppercase" th:field="*{numProceso}">
 						</div>
 						<div class="col-md-4">
-							<label >Numero Oficio</label> <input type="text"
+							<label>Numero Oficio</label> <input type="text"
 								class="form-control text-uppercase" th:field="*{numOficio}">
 						</div>
 						<div class="col-md-4">
-							<label for="fechaOficio">Fecha Oficio</label>
-							<input type="text" id="picker" class="form-control"
-									th:field="*{fechaOficio}" readonly>
-									<!-- 
+							<label for="fechaOficio">Fecha Oficio</label> <input type="text"
+								id="picker" class="form-control" th:field="*{fechaOficio}"
+								readonly>
+							<!-- 
 							<div class="input-group date" data-provide="datepicker">
 								<input type="text" class="form-control" id="fechaOficio"
 									th:field="*{fechaOficio}" readonly>
@@ -45,8 +81,9 @@
 							<label for="tipoEmbargo">Tipo Embargo</label> <select
 								th:field="*{tipoEmbargo}" class="form-control" id="tipoEmbargo">
 								<option value="" selected></option>
-								<option th:each="tipoEmbargo : ${T(enumeraciones.TipoEmbargo).values()}"
-										th:value="${tipoEmbargo}" th:text="${tipoEmbargo}"></option>
+								<option
+									th:each="tipoEmbargo : ${T(enumeraciones.TipoEmbargo).values()}"
+									th:value="${tipoEmbargo}" th:text="${tipoEmbargo}"></option>
 							</select>
 						</div>
 						<div class="col-md-4">
@@ -63,8 +100,8 @@
 					<div class="card my-2" id="card-registrar">
 						<div class="card-body">
 							<div class="mb-2">
-								<button type="submit" name="action" value="demandante"  
-								class="btn btn-secondary btn-sm">Agregar Demandantes</button>
+								<button type="submit" name="action" value="demandante"
+									class="btn btn-secondary btn-sm">Agregar Demandantes</button>
 							</div>
 							<table class="table table-bordered" id="tabla-1"
 								style="width: 100%">
@@ -100,10 +137,10 @@
 									</tr>
 								</tbody>
 							</table>
-							
+
 							<div class="mb-2">
-								<button type="submit" name="action" value="demandado" 
-								class="btn btn-secondary btn-sm">Agregar Demandados</button>
+								<button type="submit" name="action" value="demandado"
+									class="btn btn-secondary btn-sm">Agregar Demandados</button>
 							</div>
 							<table class="display table table-bordered" id="tabla-2"
 								style="width: 100%">
@@ -151,6 +188,8 @@
 		</div>
 		<input type="hidden" th:field="*{idAutoridad}" />
 	</form>
+	
+
 	<footer th:replace="layout :: footer"></footer>
 </body>
 </html>

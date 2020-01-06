@@ -116,11 +116,10 @@ public class JudicialController {
 
 	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=cargar")
 	public String cargarEmbargo(@RequestParam("file") MultipartFile archivo) {
-
+		
 		if (!archivo.isEmpty()) {
 			System.out.println("Nombre archivo: " + archivo.getOriginalFilename());
 		}
-
 		return "redirect:/autoridad/judicial/gestor";
 	}
 

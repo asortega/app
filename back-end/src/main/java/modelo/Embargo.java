@@ -16,7 +16,7 @@ public class Embargo {
 	private String ciudadCuentaAgrario;
 	private String departamentoCuentaAgrario;
 	private Boolean embargoProcesado;
-    private ArrayList<Demandado> demandados;
+    private ArrayList<Demandado> demandados= new ArrayList<>();
     
     
 	public Embargo(String idAutoridad, String numProceso, LocalDate fechaOficio,

@@ -53,20 +53,29 @@ public class JpaUserDetailsService implements UserDetailsService {
 			usuario.setUsername(username);
 			usuario.setPassword("app");
 			usuario.setRoles(roles);
-			
 			return usuario;
-		} else {
-			if (username.equalsIgnoreCase("judicial")) {
-				ArrayList<String> roles = new ArrayList<>();
-				roles.add("GESTOR");
-				roles.add("JUDICIAL");
-				Usuario usuario = new Usuario();
-				usuario.setUsername(username);
-				usuario.setPassword("judicial");
-				usuario.setRoles(roles);
-				return usuario;	
-			}
+		} 
+		if (username.equalsIgnoreCase("judicial")) {
+			ArrayList<String> roles = new ArrayList<>();
+			roles.add("GESTOR");
+			roles.add("JUDICIAL");
+			Usuario usuario = new Usuario();
+			usuario.setUsername(username);
+			usuario.setPassword("judicial");
+			usuario.setRoles(roles);
+			return usuario;	
 		}
+		if (username.equalsIgnoreCase("coactivo")) {
+			ArrayList<String> roles = new ArrayList<>();
+			roles.add("GESTOR");
+			roles.add("COACTIVO");
+			Usuario usuario = new Usuario();
+			usuario.setUsername(username);
+			usuario.setPassword("coactivo");
+			usuario.setRoles(roles);
+			return usuario;	
+		}
+		
 		/*
 		else {
 			if (username.equalsIgnoreCase("admin")) {

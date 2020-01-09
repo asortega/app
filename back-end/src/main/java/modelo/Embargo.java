@@ -8,6 +8,7 @@ import enumeraciones.TipoEmbargo;
 
 public class Embargo {
 	
+	
 	private String idAutoridad;
 	private String numProceso;
 	private LocalDate fechaOficio;

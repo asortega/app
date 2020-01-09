@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import enumeraciones.TipoEmbargo;
 
 public class EmbargoJudicial extends Embargo{
-
+	
 	private BigDecimal montoAEmbargar;
 	private String numOficio;
 	private ArrayList<Demandante> demandantes= new ArrayList<>();

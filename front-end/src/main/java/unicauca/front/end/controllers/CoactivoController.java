@@ -1,10 +1,19 @@
 package unicauca.front.end.controllers;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +29,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.gson.Gson;
@@ -96,7 +107,8 @@ public class CoactivoController {
 		model.addAttribute("boton", "all");
 		return "autoridad/coactivo/gestor/main";
 	}
-
+	
+	/*
 	@Secured("ROLE_COACTIVO")
 	@GetMapping("/gestor/cargar")
 	public String cargarEmbargo(Model model) {
@@ -107,6 +119,91 @@ public class CoactivoController {
 		model.addAttribute("embargo", embargo);
 		model.addAttribute("boton", "all");
 		return "autoridad/coactivo/gestor/main";
+	}*/
+	
+	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=cargar")
+	public String cargarEmbargo(@RequestParam("file") MultipartFile archivo, Model model, RedirectAttributes flash)
+			throws IOException {
+		boolean band = false;
+		EmbargoCoactivo embargoCoactivo = new EmbargoCoactivo();
+		if (!archivo.isEmpty()) {
+			// System.out.println("Nombre Archivo: "+archivo.getOriginalFilename());
+			FileInputStream file = new FileInputStream(new File(archivo.getOriginalFilename()));
+			XSSFWorkbook workbook = new XSSFWorkbook(file);
+			Sheet sheet = workbook.getSheetAt(0);
+			for (int i = sheet.getFirstRowNum() + 2; i <= sheet.getLastRowNum(); i++) {
+				Row row = sheet.getRow(i);
+				Demandado demandado = new Demandado();
+				embargoCoactivo = asignarEmbargo(embargoCoactivo, demandado, row, i);
+			}
+			workbook.close();
+			file.close();
+			band = true;
+		}
+		if (band == true) {
+			model.addAttribute("titulo", "Embargo");
+			model.addAttribute("form", "Formulario");
+			model.addAttribute("embargo", embargoCoactivo);
+			model.addAttribute("boton", "all");
+			return "autoridad/coactivo/gestor/main";
+		} else {
+			flash.addFlashAttribute("warning", "Por favor, elegir archivo a cargar");
+			return "redirect:/autoridad/coactivo/gestor";
+		}
+
+	}
+
+	public EmbargoCoactivo asignarEmbargo(EmbargoCoactivo embargoCoactivo, Demandado demandado,
+			Row row, int i) {
+		Iterator<Cell> cellIterator = row.cellIterator();
+		while (cellIterator.hasNext()) {
+			Cell ce = cellIterator.next();
+			int columnIndex = ce.getColumnIndex();
+			if (ce.getCellType() != CellType.BLANK) {
+				switch (columnIndex) {
+				case 0:
+					embargoCoactivo.setNumProceso(ce.getStringCellValue());
+					break;
+				case 1:
+					embargoCoactivo.setNumOficio(ce.getStringCellValue());
+					break;
+				case 2:
+					embargoCoactivo.setFechaOficio(ce.getLocalDateTimeCellValue().toLocalDate());
+					break;
+				case 3:
+					embargoCoactivo.setTipoEmbargo(TipoEmbargo.valueOf(ce.getStringCellValue()));
+					break;
+				case 4:
+					embargoCoactivo.setNumCuentaAgrario(ce.getStringCellValue());
+					break;
+				case 5:
+					demandado.setIdentificacion(ce.getStringCellValue());
+					break;
+				case 6:
+					demandado.setTipoIdentificacion(TipoIdentificacion.valueOf(ce.getStringCellValue()));
+					break;
+				case 7:
+					demandado.setNombres(ce.getStringCellValue());
+					break;
+				case 8:
+					demandado.setApellidos(ce.getStringCellValue());
+					break;
+				case 9:
+					demandado.setResEmbargo(ce.getStringCellValue());
+					break;
+				case 10:
+					demandado.setFechaResolucion(ce.getLocalDateTimeCellValue().toLocalDate());
+					break;
+				case 11:
+					demandado.setMontoAEmbargar(new BigDecimal(ce.getNumericCellValue()));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		embargoCoactivo.getDemandados().add(demandado);
+		return embargoCoactivo;
 	}
 
 	@Secured("ROLE_COACTIVO")

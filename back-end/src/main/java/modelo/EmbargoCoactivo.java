@@ -18,8 +18,6 @@ public class EmbargoCoactivo extends Embargo {
 		this.numOficio = numOficio;
 	}
 	
-	
-
 	public EmbargoCoactivo(String idEmbargo, String idAutoridad, String numProceso, LocalDate fechaOficio,
 			TipoEmbargo tipoEmbargo, String numCuentaAgrario, String ciudadCuentaAgrario,
 			String departamentoCuentaAgrario, ArrayList<Demandado> demandados) {

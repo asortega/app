@@ -26,7 +26,6 @@
 						<form action="#"
 							th:action="@{'/autoridad/coactivo/gestor/aplicar/'+${boton}+'/'+${mensajePasarela}}"
 							th:object="${embargo}" method="post">
-							<input type="hidden" th:field="*{idEmbargo}" />
 							<input type="hidden" th:field="*{idAutoridad}" /> 
 							<input type="hidden" th:field="*{numProceso}" />  
 							<input type="hidden" th:field="*{fechaOficio}" /> 

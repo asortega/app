@@ -12,11 +12,11 @@
 					<div class="btn-group" role="group" aria-label="Basic example">
 						<th:block th:switch="${boton}">
 							<th:block th:case="all">
-								<!-- 
+								<!--
 								<button id="button" type="button"
 									class="btn btn-primary border-right border-dark"
 									onclick="window.location.href='/autoridad/judicial/gestor/cargar'">Cargar</button> 
-								
+								 
 								<span class="btn btn-primary border-right border-dark btn-file">
 									Cargar<input id="fileInput" type="file" name="file">
 								</span>-->
@@ -37,7 +37,6 @@
 								<button class="btn btn-primary border-right border-dark"
 									disabled>Desembargar</button>
 							</th:block>
-
 							<a class="btn btn-primary border-right border-dark"
 								th:href="@{'/autoridad/judicial/gestor'}"> Limpiar</a>
 							<button class="btn btn-primary border-right border-dark" disabled>Imprimir</button>

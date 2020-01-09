@@ -3,7 +3,7 @@ package modelo;
 import enumeraciones.TipoIdentificacion;
 
 public class Persona {
-
+	
 	private String identificacion;
 	private String nombres;
 	private String apellidos;

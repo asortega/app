@@ -1,17 +1,27 @@
 package unicauca.front.end.controllers;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.poi.ss.usermodel.*;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.kie.api.runtime.KieSession;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -89,7 +99,7 @@ public class JudicialController {
 	}
 
 	// ------------GESTOR-----------
-
+	@Secured("ROLE_JUDICIAL")
 	@GetMapping("/gestor")
 	public String crearEmbargo(Model model) {
 
@@ -106,21 +116,107 @@ public class JudicialController {
 	/*
 	 * @GetMapping("/gestor/cargar") public String cargarEmbargo(Model model) {
 	 * 
-	 * embargo = (EmbargoJudicial) SimulacionCasos.generarEmbargoNormal(); //
-	 * embargo = (EmbargoJudicial) generarEmbargoNormal();
-	 * model.addAttribute("titulo", "Embargo"); model.addAttribute("form",
-	 * "Formulario"); model.addAttribute("embargo", embargo);
-	 * model.addAttribute("boton", "all"); return "autoridad/judicial/gestor/main";
-	 * }
+	 * embargo = (EmbargoJudicial) SimulacionCasos.generarEmbargoNormal(); //embargo
+	 * = (EmbargoJudicial) generarEmbargoNormal(); model.addAttribute("titulo",
+	 * "Embargo"); model.addAttribute("form", "Formulario");
+	 * model.addAttribute("embargo", embargo); model.addAttribute("boton", "all");
+	 * return "autoridad/judicial/gestor/main"; }
 	 */
 
 	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=cargar")
-	public String cargarEmbargo(@RequestParam("file") MultipartFile archivo) {
-		
+	public String cargarEmbargo(@RequestParam("file") MultipartFile archivo, Model model, RedirectAttributes flash)
+			throws IOException {
+		boolean band = false;
+		EmbargoJudicial embargoJudicial = new EmbargoJudicial();
 		if (!archivo.isEmpty()) {
-			System.out.println("Nombre archivo: " + archivo.getOriginalFilename());
+			// System.out.println("Nombre Archivo: "+archivo.getOriginalFilename());
+			FileInputStream file = new FileInputStream(new File(archivo.getOriginalFilename()));
+			XSSFWorkbook workbook = new XSSFWorkbook(file);
+			Sheet sheet = workbook.getSheetAt(0);
+			for (int i = sheet.getFirstRowNum() + 2; i <= sheet.getLastRowNum(); i++) {
+				Row row = sheet.getRow(i);
+				Demandante demandante = new Demandante();
+				Demandado demandado = new Demandado();
+				embargoJudicial = asignarEmbargo(embargoJudicial, demandante, demandado, row, i);
+			}
+			workbook.close();
+			file.close();
+			band = true;
 		}
-		return "redirect:/autoridad/judicial/gestor";
+		if (band == true) {
+			model.addAttribute("titulo", "Embargo");
+			model.addAttribute("form", "Formulario");
+			model.addAttribute("embargo", embargoJudicial);
+			model.addAttribute("boton", "all");
+			return "autoridad/judicial/gestor/main";
+		} else {
+			flash.addFlashAttribute("warning", "Por favor, elegir archivo a cargar");
+			return "redirect:/autoridad/judicial/gestor";
+		}
+
+	}
+
+	public EmbargoJudicial asignarEmbargo(EmbargoJudicial embargoJudicial, Demandante demandante, Demandado demandado,
+			Row row, int i) {
+		Iterator<Cell> cellIterator = row.cellIterator();
+		while (cellIterator.hasNext()) {
+			Cell ce = cellIterator.next();
+			int columnIndex = ce.getColumnIndex();
+			if (ce.getCellType() != CellType.BLANK) {
+				switch (columnIndex) {
+				case 0:
+					embargoJudicial.setNumProceso(ce.getStringCellValue());
+					break;
+				case 1:
+					embargoJudicial.setNumOficio(ce.getStringCellValue());
+					break;
+				case 2:
+					embargoJudicial.setFechaOficio(ce.getLocalDateTimeCellValue().toLocalDate());
+					break;
+				case 3:
+					embargoJudicial.setTipoEmbargo(TipoEmbargo.valueOf(ce.getStringCellValue()));
+					break;
+				case 4:
+					embargoJudicial.setMontoAEmbargar(new BigDecimal(ce.getNumericCellValue()));
+					break;
+				case 5:
+					embargoJudicial.setNumCuentaAgrario(ce.getStringCellValue());
+					break;
+				case 6:
+					demandante.setIdentificacion(ce.getStringCellValue());
+					break;
+				case 7:
+					demandante.setTipoIdentificacion(TipoIdentificacion.valueOf(ce.getStringCellValue()));
+					break;
+				case 8:
+					demandante.setNombres(ce.getStringCellValue());
+					break;
+				case 9:
+					demandante.setApellidos(ce.getStringCellValue());
+					break;
+				case 10:
+					demandado.setIdentificacion(ce.getStringCellValue());
+					break;
+				case 11:
+					demandado.setTipoIdentificacion(TipoIdentificacion.valueOf(ce.getStringCellValue()));
+					break;
+				case 12:
+					demandado.setNombres(ce.getStringCellValue());
+					break;
+				case 13:
+					demandado.setApellidos(ce.getStringCellValue());
+					break;
+				case 14:
+					demandado.setMontoAEmbargar(new BigDecimal(ce.getNumericCellValue()));
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		embargoJudicial.getDemandantes().add(demandante);
+		embargoJudicial.getDemandados().add(demandado);
+		return embargoJudicial;
 	}
 
 	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=demandante")
@@ -237,7 +333,7 @@ public class JudicialController {
 	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=consultar")
 	public String consultar(@ModelAttribute(name = "embargo") EmbargoJudicial embargo, Model model,
 			RedirectAttributes flash) throws JSONException {
-		
+
 		Consulta selector = new Consulta();
 		if (!consulta(embargo).isEmpty()) {
 			selector.setSelector(consulta(embargo));

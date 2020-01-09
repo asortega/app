@@ -4,9 +4,9 @@
 <body>
 
 	<form action="#" th:action="@{/autoridad/coactivo/gestor/form}"
-		th:object="${embargo}" method="post">
+		th:object="${embargo}" method="post" enctype="multipart/form-data">
+		<div th:replace="autoridad/file :: file"></div>
 		<nav th:replace="autoridad/coactivo/gestor/navbar :: panel"></nav>
-
 		<div class="container-fluid" id="css-contenido">
 			<div th:replace="layout :: alerts"></div>
 			<div class="card border-dark bg-light" id="card-inicio">
@@ -26,9 +26,10 @@
 								<label>Numero Oficio</label> <input type="text"
 									class="form-control text-uppercase" th:field="*{numOficio}">
 							</div>
+							
 							<div class="col-md-4">
 								<label for="fechaOficio">Fecha Oficio</label> <input type="text"
-									id="picker" class="form-control" th:field="*{fechaOficio}"
+									class="picker form-control" th:field="*{fechaOficio}"
 									readonly>
 							</div>
 
@@ -92,10 +93,10 @@
 											<td><input name="resEmbargo" type="text"
 												class="form-control text-uppercase"
 												th:field="*{demandados[__${item.index}__].resEmbargo}" /></td>
-											<td><input name="fechaResolucion" type="text"
-												class="form-control text-uppercase" id="picker"
-												th:field="*{demandados[__${item.index}__].fechaResolucion}"
-												readonly /></td>
+											<td>
+												<input type="date" class="picker form-control" 
+												th:field="*{demandados[__${item.index}__].fechaResolucion}" readonly>
+												</td>
 											<td><input name="montoAEmbargar" type="text"
 												class="form-control text-uppercase"
 												th:field="*{demandados[__${item.index}__].montoAEmbargar}" />
@@ -110,8 +111,7 @@
 				</div>
 			</div>
 		</div>
-		<input type="hidden" th:field="*{idEmbargo}" /> <input type="hidden"
-			th:field="*{idAutoridad}" />
+		<input type="hidden" th:field="*{idAutoridad}" />
 	</form>
 	<footer th:replace="layout :: footer"></footer>
 

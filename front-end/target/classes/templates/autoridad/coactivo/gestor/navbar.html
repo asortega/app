@@ -12,7 +12,7 @@
 					<div class="btn-group" role="group" aria-label="Basic example">
 						<th:block th:switch="${boton}">
 							<th:block th:case="all">
-								<!--
+							<!--	
 						<button type="button"
 							class="btn btn-primary border-right border-dark"
 							onclick="window.location.href='/autoridad/coactivo/gestor/cargar'">Cargar</button>-->
@@ -34,10 +34,12 @@
 								</th:block>
 								<button class="btn btn-primary border-right border-dark"
 									disabled>Desembargar</button>
+									<a class="btn btn-primary border-right border-dark"
+								th:href="@{'/autoridad/coactivo/imprimir'}" target="_blank"> Imprimir</a>
 							</th:block>
 							<a class="btn btn-primary border-right border-dark"
 								th:href="@{'/autoridad/coactivo/gestor'}"> Limpiar</a>
-							<button class="btn btn-primary border-right border-dark" disabled>Imprimir</button>
+							
 					</div>
 				</li>
 			</ul>

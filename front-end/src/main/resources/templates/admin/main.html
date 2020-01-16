@@ -26,9 +26,14 @@
 						<div class="col-md-4">
 							<label for="idAutoridad">Identificacion</label>
 							<th:block th:if="${boton} eq 'all'">
-								<input type="text" name="idAutoridad"
-									th:field="*{autoridad.idAutoridad}"
-									class="form-control text-uppercase" />
+								<input type="text" name="idAutoridad" id="myInput"
+									th:field="*{autoridad.idAutoridad}" 
+									onpaste="return false"
+									onkeypress="return /[a-z-0-9]/i.test(event.key)"
+									maxlength="50"
+									class="form-control text-uppercase"
+									autofocus 
+									/>
 							</th:block>
 							<th:block
 								th:if="${boton} eq 'onactualizar' or ${boton} eq 'inactualizar'">
@@ -44,7 +49,9 @@
 						<div class="col-md-4">
 							<label for="nombre">Nombre</label> <input type="text"
 								name="nombre" th:field="*{autoridad.nombre}"
-								class="form-control text-uppercase" />
+								onkeypress="return /[a-z]/i.test(event.key)"
+								onpaste="return false"
+								class="form-control text-uppercase" maxlength="50" />
 						</div>
 						<div class="col-md-4">
 							<label for="tipoAutoridad">Tipo</label> <select
@@ -63,7 +70,11 @@
 						<div class="col-md-4">
 							<label for="direccion">Direccion</label> <input type="text"
 								name="direccion" th:field="*{autoridad.direccion}"
-								class="form-control text-uppercase" />
+								class="form-control text-uppercase"
+								onpaste="return false"
+								onkeypress="return /[a-z-0-9]/i.test(event.key)"
+								maxlength="50"
+								/>
 						</div>
 						<div class="col-md-4">
 							<label for="departamento">Departamento</label> <select
@@ -148,7 +159,11 @@
 												th:if="*{#strings.isEmpty(autoridad.usuarios[__${item.index}__].identificacion)}">
 												<input name="identificacion" type="text"
 													class="form-control text-uppercase"
-													th:field="*{autoridad.usuarios[__${item.index}__].identificacion}" />
+													th:field="*{autoridad.usuarios[__${item.index}__].identificacion}"
+													onkeypress="return /[0-9]/i.test(event.key)"
+													onpaste="return false" 
+													maxlength="20"
+													/>
 											</th:block>
 										</td>
 										<td><select class="form-control text-uppercase"
@@ -165,10 +180,18 @@
 
 										<td><input name="nombres" type="text"
 											class="form-control text-uppercase"
-											th:field="*{autoridad.usuarios[__${item.index}__].nombres}" /></td>
+											th:field="*{autoridad.usuarios[__${item.index}__].nombres}" 
+											onkeypress="return /[a-z]/i.test(event.key)"
+											onpaste="return false"
+											maxlength="50"
+											/></td>
 										<td><input name="apellidos" type="text"
 											class="form-control text-uppercase"
-											th:field="*{autoridad.usuarios[__${item.index}__].apellidos}" /></td>
+											th:field="*{autoridad.usuarios[__${item.index}__].apellidos}"
+											onkeypress="return /[a-z]/i.test(event.key)"
+											onpaste="return false"
+											maxlength="50" 
+											/></td>
 										
 										<td>
 										<th:block
@@ -181,18 +204,30 @@
 												th:if="*{#strings.isEmpty(autoridad.usuarios[__${item.index}__].username)}">
 											<input name="username" type="text"
 											class="form-control text-uppercase"
-											th:field="*{autoridad.usuarios[__${item.index}__].username}" />
+											th:field="*{autoridad.usuarios[__${item.index}__].username}"
+											onpaste="return false"
+											onkeypress="return /[a-z-0-9]/i.test(event.key)"
+											maxlength="50" 
+											/>
 											</th:block>
 										</td>
 										<td><input type="password" name="password" id="password"
 											th:name="|usuarios[${item.index}].password|"
 											th:value="${usuario.getPassword()}"
-											class="form-control text-uppercase" /></td>
+											class="form-control text-uppercase"
+											onpaste="return false"
+											onkeypress="return /[a-z-0-9]/i.test(event.key)"
+											maxlength="50" 
+											/></td>
 										<td><input type="password" id="confirmPassword"
 											name="confirmPassword"
 											th:name="|usuarios[${item.index}].confirmPassword|"
 											th:value="${usuario.getConfirmPassword()}"
-											class="form-control text-uppercase" /></td>
+											class="form-control text-uppercase"
+											onpaste="return false"
+											onkeypress="return /[a-z-0-9]/i.test(event.key)"
+											maxlength="50" 
+											/></td>
 									</tr>
 								</tbody>
 							</table>

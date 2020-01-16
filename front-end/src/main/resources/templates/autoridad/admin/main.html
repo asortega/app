@@ -26,7 +26,11 @@
 						<div class="col-md-4">
 							<label for="identificacion">Identificacion</label> <input
 								type="text" name="identificacion" th:field="*{usuario.identificacion}"
-								class="form-control text-uppercase" autofocus />
+								class="form-control text-uppercase" autofocus
+								onkeypress="return /[0-9]/i.test(event.key)"
+								onpaste="return false" 
+								maxlength="20" 
+								/>
 						</div>
 						<div class="col-md-4">
 							<label for="tipoIdentificacion">Tipo Identificacion</label> <select
@@ -43,7 +47,11 @@
 						<div class="col-md-4">
 							<label for="nombres">Nombres</label> <input type="text"
 								name="nombres" id="nombres" class="form-control text-uppercase"
-								th:field="*{usuario.nombres}" />
+								th:field="*{usuario.nombres}"
+								onkeypress="return /[a-z]/i.test(event.key)"
+								onpaste="return false"
+								maxlength="50"
+								/>
 						</div>
 
 					</div>
@@ -52,18 +60,29 @@
 						<div class="col-md-4">
 							<label for="apellidos">Apellidos</label> <input type="text"
 								name="apellidos" id="apellidos"
-								class="form-control text-uppercase" th:field="*{usuario.apellidos}" />
+								class="form-control text-uppercase" th:field="*{usuario.apellidos}"
+								onkeypress="return /[a-z]/i.test(event.key)"
+								onpaste="return false"
+								maxlength="50" 
+								
+								/>
 						</div>
 
 						<div class="col-md-4">
 							<label for="username">Nombre de Usuario</label> <input
 								type="text" name="username" id="username"
-								class="form-control text-uppercase" th:field="*{usuario.username}" />
+								class="form-control text-uppercase" th:field="*{usuario.username}"
+								onpaste="return false"
+								onkeypress="return /[a-z-0-9]/i.test(event.key)"
+								maxlength="50"  
+								
+								/>
 						</div>
 
 						<div class="col-md-4">
 							<label for="roles">Rol Usuario</label> <select
 								class="form-control" th:field="*{usuario.roles}" name="roles">
+								<option value="" selected></option>
 								<option th:each="cont : ${lst}" th:text="${cont}"
 									th:value="${cont}"></option>
 							</select>
@@ -84,18 +103,24 @@
 							<div class="col-md-4">
 								<label for="password">Contraseña Usuario</label> 
 									<input type="password" name="password" id="password"
-											
 											th:value="${usuario.getPassword()}"
-											class="form-control text-uppercase" />
+											class="form-control text-uppercase"
+											onpaste="return false"
+											onkeypress="return /[a-z-0-9]/i.test(event.key)"
+											maxlength="50" 
+											/>
 							</div>
 							<div class="col-md-4">
 								<label for="confirmPassword">Confirmar Contraseña
 									Usuario</label>
 									<input type="password" id="confirmPassword"
 											name="confirmPassword"
-											
 											th:value="${usuario.getConfirmPassword()}"
-											class="form-control text-uppercase" />
+											class="form-control text-uppercase"
+											onpaste="return false"
+											onkeypress="return /[a-z-0-9]/i.test(event.key)"
+											maxlength="50" 
+											/>
 							</div>
 
 						</th:block>

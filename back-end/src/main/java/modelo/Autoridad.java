@@ -56,7 +56,7 @@ public class Autoridad {
 		
 	
 	public Autoridad() {
-		// TODO Auto-generated constructor stub
+		this.habilitado=true;
 	}
 
 	public boolean isHabilitado() {

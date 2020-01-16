@@ -38,7 +38,9 @@ public class Demandado extends Persona {
 	}
 	
 	public Demandado() {
-		// TODO Auto-generated constructor stub
+		this.montoEmbargado = new BigDecimal(0);
+		this.intentos=new ArrayList<>();
+		this.cuentas=new ArrayList<>();
 	}
 
 	public BigDecimal getMontoAEmbargar() {

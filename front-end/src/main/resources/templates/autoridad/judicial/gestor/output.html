@@ -30,9 +30,8 @@
 						<form action="#"
 							th:action="@{'/autoridad/judicial/gestor/aplicar/'+${boton}+'/'+${mensajePasarela}}"
 							th:object="${embargo}" method="post">
-							<input type="hidden" th:field="*{idEmbargo}" /> <input
-								type="hidden" th:field="*{idAutoridad}" /> <input type="hidden"
-								th:field="*{numProceso}" /> <input type="hidden"
+							<input type="hidden" th:field="*{username}" /> <input
+								type="hidden" th:field="*{numProceso}" /> <input type="hidden"
 								th:field="*{numOficio}" /> <input type="hidden"
 								th:field="*{fechaOficio}" /> <input type="hidden"
 								th:field="*{tipoEmbargo}" /> <input type="hidden"

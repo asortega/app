@@ -54,6 +54,17 @@ public class JpaUserDetailsService implements UserDetailsService {
 			usuario.setPassword("app");
 			usuario.setRoles(roles);
 			return usuario;
+		}
+		if (username.equalsIgnoreCase("admin")) {
+			ArrayList<String> roles = new ArrayList<>();
+			roles.add("ADMIN");
+			// role.setAuthority("ADMIN");
+			// roles.add(role);
+			Usuario usuario = new Usuario();
+			usuario.setUsername(username);
+			usuario.setPassword("admin");
+			usuario.setRoles(roles);
+			return usuario;
 		} 
 		if (username.equalsIgnoreCase("judicial")) {
 			ArrayList<String> roles = new ArrayList<>();
@@ -62,6 +73,16 @@ public class JpaUserDetailsService implements UserDetailsService {
 			Usuario usuario = new Usuario();
 			usuario.setUsername(username);
 			usuario.setPassword("judicial");
+			usuario.setRoles(roles);
+			return usuario;	
+		}
+		if (username.equalsIgnoreCase("sejudicial")) {
+			ArrayList<String> roles = new ArrayList<>();
+			roles.add("SECRETARIO");
+			roles.add("JUDICIAL");
+			Usuario usuario = new Usuario();
+			usuario.setUsername(username);
+			usuario.setPassword("sejudicial");
 			usuario.setRoles(roles);
 			return usuario;	
 		}
@@ -75,59 +96,18 @@ public class JpaUserDetailsService implements UserDetailsService {
 			usuario.setRoles(roles);
 			return usuario;	
 		}
+		if (username.equalsIgnoreCase("secoactivo")) {
+			ArrayList<String> roles = new ArrayList<>();
+			roles.add("SECRETARIO");
+			roles.add("COACTIVO");
+			Usuario usuario = new Usuario();
+			usuario.setUsername(username);
+			usuario.setPassword("secoactivo");
+			usuario.setRoles(roles);
+			return usuario;	
+		}
 		
-		/*
-		else {
-			if (username.equalsIgnoreCase("admin")) {
-				ArrayList<String> roles = new ArrayList<>();
-				roles.add("ADMIN");
-				// role.setAuthority("AUTORIDAD");
-				// roles.add(role);
-				Usuario usuario = new Usuario();
-				usuario.setUsername(username);
-				usuario.setPassword("admin");
-				usuario.setRoles(roles);
-				if (BackEndController.obtenerUsuario(username) == null) {
-					EmbargosController.guardarUsuario(usuario);
-				}
-				return usuario;
-
-			} else {
-				if (username.equalsIgnoreCase("judicial")) {
-					ArrayList<String> roles = new ArrayList<>();
-					roles.add("GESTOR");
-					roles.add("JUDICIAL");
-					// role.setAuthority("AUTORIDAD");
-					// roles.add(role);
-					Usuario usuario = new Usuario();
-					usuario.setUsername(username);
-					usuario.setPassword("judicial");
-					usuario.setRoles(roles);
-					if (BackEndController.obtenerUsuario(username) == null) {
-						EmbargosController.guardarUsuario(usuario);
-					}
-					return usuario;	
-				}else {
-					if (username.equalsIgnoreCase("coactivo")) {
-						ArrayList<String> roles = new ArrayList<>();
-						roles.add("GESTOR");
-						roles.add("COACTIVO");
-						// role.setAuthority("AUTORIDAD");
-						// roles.add(role);
-						Usuario usuario = new Usuario();
-						usuario.setUsername(username);
-						usuario.setPassword("coactivo");
-						usuario.setRoles(roles);
-						if (BackEndController.obtenerUsuario(username) == null) {
-							EmbargosController.guardarUsuario(usuario);
-						}
-						
-						return usuario;
-					}
-				}
-				
-			}
-		}*/
+		
 		return BackEndController.obtenerUsuario(username);
 	}
 

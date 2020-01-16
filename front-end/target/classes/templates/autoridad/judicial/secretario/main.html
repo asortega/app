@@ -20,11 +20,17 @@
 					<div class="form-row">
 						<div class="col-md-4">
 							<label>Numero Proceso</label> <input type="text"
-								class="form-control text-uppercase" th:field="*{numProceso}">
+								class="form-control text-uppercase" th:field="*{numProceso}"
+								onkeypress="return /[0-9]/i.test(event.key)"
+								onpaste="return false" maxlength="50"
+								>
 						</div>
 						<div class="col-md-4">
 							<label>Numero Oficio</label> <input type="text"
-								class="form-control text-uppercase" th:field="*{numOficio}">
+								class="form-control text-uppercase" th:field="*{numOficio}"
+								onkeypress="return /[0-9]/i.test(event.key)"
+								onpaste="return false" maxlength="20"
+								>
 						</div>
 						<div class="col-md-4">
 							<label for="fechaOficio">Fecha Oficio</label>
@@ -54,7 +60,10 @@
 						<div class="col-md-4">
 							<label for="numCuenta">Numero Cuenta Banco Agrario</label> <input
 								type="text" class="form-control" id="numOficio"
-								th:field="*{numCuentaAgrario}">
+								th:field="*{numCuentaAgrario}"
+								onkeypress="return /[0-9]/i.test(event.key)"
+								onpaste="return false" maxlength="50"
+								>
 						</div>
 					</div>
 
@@ -74,7 +83,10 @@
 									<tr th:each="demandante, item : *{demandantes}">
 										<td><input name="identificacion" type="text"
 											class="form-control text-uppercase"
-											th:field="*{demandantes[__${item.index}__].identificacion}" />
+											th:field="*{demandantes[__${item.index}__].identificacion}"
+											onkeypress="return /[0-9]/i.test(event.key)"
+											onpaste="return false" maxlength="20"  
+											/>
 										</td>
 										<td><select class="form-control text-uppercase"
 											th:field="*{demandantes[__${item.index}__].tipoIdentificacion}">
@@ -86,10 +98,16 @@
 										</select></td>
 										<td><input name="nombres" type="text"
 											class="form-control text-uppercase"
-											th:field="*{demandantes[__${item.index}__].nombres}" /></td>
+											th:field="*{demandantes[__${item.index}__].nombres}"
+											onkeypress="return /[a-z]/i.test(event.key)"
+											onpaste="return false" maxlength="50"  
+											/></td>
 										<td><input name="apellidos" type="text"
 											class="form-control text-uppercase"
-											th:field="*{demandantes[__${item.index}__].apellidos}" /></td>
+											th:field="*{demandantes[__${item.index}__].apellidos}"
+											onkeypress="return /[a-z]/i.test(event.key)"
+											onpaste="return false" maxlength="50"  
+											/></td>
 									</tr>
 								</tbody>
 							</table>
@@ -110,7 +128,10 @@
 									<tr th:each="demandado, item : *{demandados}">
 										<td><input name="identificacion" type="text"
 											class="form-control text-uppercase"
-											th:field="*{demandados[__${item.index}__].identificacion}" />
+											th:field="*{demandados[__${item.index}__].identificacion}"
+											onkeypress="return /[0-9]/i.test(event.key)"
+											onpaste="return false" maxlength="20" 
+											/>
 										</td>
 										<td><select class="form-control text-uppercase"
 											th:field="*{demandados[__${item.index}__].tipoIdentificacion}">
@@ -122,10 +143,16 @@
 										</select></td>
 										<td><input name="nombres" type="text"
 											class="form-control text-uppercase"
-											th:field="*{demandados[__${item.index}__].nombres}" /></td>
+											th:field="*{demandados[__${item.index}__].nombres}"
+											onkeypress="return /[a-z]/i.test(event.key)"
+											onpaste="return false" maxlength="50"  
+											/></td>
 										<td><input name="apellidos" type="text"
 											class="form-control text-uppercase"
-											th:field="*{demandados[__${item.index}__].apellidos}" /></td>
+											th:field="*{demandados[__${item.index}__].apellidos}"
+											onkeypress="return /[a-z]/i.test(event.key)"
+											onpaste="return false" maxlength="50" 
+											/></td>
 										<td><input name="montoAEmbargar" type="text"
 											class="form-control text-uppercase"
 											th:field="*{demandados[__${item.index}__].montoAEmbargar}" />

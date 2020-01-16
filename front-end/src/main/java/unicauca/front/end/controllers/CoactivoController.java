@@ -2,8 +2,13 @@ package unicauca.front.end.controllers;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +23,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.kie.api.runtime.KieSession;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +43,17 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.gson.Gson;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.Font.FontFamily;
+import com.itextpdf.text.pdf.GrayColor;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
 import controladores.EmbargosController;
 import enumeraciones.TipoEmbargo;
@@ -68,13 +88,12 @@ public class CoactivoController {
 
 	@GetMapping("/secretario")
 	public String secretario(Model model) {
-		EmbargoJudicial embargoJudicial = new EmbargoJudicial();
-		embargoJudicial.getDemandantes().add(new Demandante());
-		embargoJudicial.getDemandados().add(new Demandado());
+		EmbargoCoactivo embargoCoactivo = new EmbargoCoactivo();
+		embargoCoactivo.getDemandados().add(new Demandado());
 		model.addAttribute("titulo", "App");
 		model.addAttribute("form", "Formulario");
-		model.addAttribute("embargoJudicial", embargoJudicial);
-		
+		model.addAttribute("embargoCoactivo", embargoCoactivo);
+
 		return "autoridad/coactivo/secretario/main";
 
 	}
@@ -89,7 +108,6 @@ public class CoactivoController {
 		}
 		model.addAttribute("titulo", "Consultar");
 		model.addAttribute("form", "Consultas");
-		model.addAttribute("id", embargoCoactivo.getIdAutoridad());
 		model.addAttribute("embargos", embargos);
 		return "autoridad/coactivo/secretario/main";
 	}
@@ -107,20 +125,19 @@ public class CoactivoController {
 		model.addAttribute("boton", "all");
 		return "autoridad/coactivo/gestor/main";
 	}
-	
+
 	/*
-	@Secured("ROLE_COACTIVO")
-	@GetMapping("/gestor/cargar")
-	public String cargarEmbargo(Model model) {
-		embargo = (EmbargoCoactivo) SimulacionCasos.generarEmbargoDian();
-		model.addAttribute("id", embargo.getIdAutoridad());
-		model.addAttribute("titulo", "Embargo");
-		model.addAttribute("form", "Formulario");
-		model.addAttribute("embargo", embargo);
-		model.addAttribute("boton", "all");
-		return "autoridad/coactivo/gestor/main";
-	}*/
-	
+	 * @Secured("ROLE_COACTIVO")
+	 * 
+	 * @GetMapping("/gestor/cargar") public String cargarEmbargo(Model model) {
+	 * embargo = (EmbargoCoactivo) SimulacionCasos.generarEmbargoDian();
+	 * model.addAttribute("id", embargo.getIdAutoridad());
+	 * model.addAttribute("titulo", "Embargo"); model.addAttribute("form",
+	 * "Formulario"); model.addAttribute("embargo", embargo);
+	 * model.addAttribute("boton", "all"); return "autoridad/coactivo/gestor/main";
+	 * }
+	 */
+
 	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=cargar")
 	public String cargarEmbargo(@RequestParam("file") MultipartFile archivo, Model model, RedirectAttributes flash)
 			throws IOException {
@@ -153,8 +170,7 @@ public class CoactivoController {
 
 	}
 
-	public EmbargoCoactivo asignarEmbargo(EmbargoCoactivo embargoCoactivo, Demandado demandado,
-			Row row, int i) {
+	public EmbargoCoactivo asignarEmbargo(EmbargoCoactivo embargoCoactivo, Demandado demandado, Row row, int i) {
 		Iterator<Cell> cellIterator = row.cellIterator();
 		while (cellIterator.hasNext()) {
 			Cell ce = cellIterator.next();
@@ -228,7 +244,6 @@ public class CoactivoController {
 			session.cerrarSesion(sessionStatefull);
 			model.addAttribute("titulo", "Aplicar");
 			model.addAttribute("form", "Resultado");
-			model.addAttribute("id", embargo.getIdAutoridad());
 			model.addAttribute("mensajePasarela", mensajePasarela);
 			model.addAttribute("mensaje", service.imprimir(embargo));
 			model.addAttribute("boton", "all");
@@ -264,25 +279,21 @@ public class CoactivoController {
 		System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
 		System.out.println("Estado: " + embargo.getEmbargoProcesado());
 		/*
-		System.out.println("Id embargo:" + embargo.getIdEmbargo());
-		System.out.println("Id Autoridad:" + embargo.getIdAutoridad());
-		System.out.println("Num proceso:" + embargo.getNumProceso());
-		System.out.println("Fecha Oficio:" + embargo.getFechaOficio());
-		System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
-		System.out.println("Num Cuenta Agrario:" + embargo.getNumCuentaAgrario());
-		for (Demandado demandado : embargo.getDemandados()) {
-			ArrayList<Intento> intentos = new ArrayList<>();
-			Intento intento = new Intento(LocalDate.now(), true, mensajePasarela, demandado.getCuentas());
-			intentos.add(intento);
-			demandado.setIntentos(intentos);
-		}
-		model.addAttribute("titulo", "App");
-		model.addAttribute("form", "Formulario");
-		model.addAttribute("id", embargo.getIdAutoridad());
-		embargo.setEmbargoProcesado(true);
-		authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = authentication.getName();
-		embargo.setIdAutoridad(username);*/
+		 * System.out.println("Id embargo:" + embargo.getIdEmbargo());
+		 * System.out.println("Id Autoridad:" + embargo.getIdAutoridad());
+		 * System.out.println("Num proceso:" + embargo.getNumProceso());
+		 * System.out.println("Fecha Oficio:" + embargo.getFechaOficio());
+		 * System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
+		 * System.out.println("Num Cuenta Agrario:" + embargo.getNumCuentaAgrario());
+		 * for (Demandado demandado : embargo.getDemandados()) { ArrayList<Intento>
+		 * intentos = new ArrayList<>(); Intento intento = new Intento(LocalDate.now(),
+		 * true, mensajePasarela, demandado.getCuentas()); intentos.add(intento);
+		 * demandado.setIntentos(intentos); } model.addAttribute("titulo", "App");
+		 * model.addAttribute("form", "Formulario"); model.addAttribute("id",
+		 * embargo.getIdAutoridad()); embargo.setEmbargoProcesado(true); authentication
+		 * = SecurityContextHolder.getContext().getAuthentication(); String username =
+		 * authentication.getName(); embargo.setIdAutoridad(username);
+		 */
 		// EmbargosController.guardarEmbargo(embargo);
 		return "autoridad/coactivo/gestor/msj";
 	}
@@ -300,11 +311,10 @@ public class CoactivoController {
 		}
 		model.addAttribute("titulo", "App");
 		model.addAttribute("form", "Formulario");
-		model.addAttribute("id", embargo.getIdAutoridad());
 		embargo.setEmbargoProcesado(false);
-		authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = authentication.getName();
-		embargo.setIdAutoridad(username);
+		// authentication = SecurityContextHolder.getContext().getAuthentication();
+		// String username = authentication.getName();
+		// embargo.setIdAutoridad(username);
 		// EmbargosController.guardarEmbargo(embargo);
 		return "redirect:/autoridad/coactivo/gestor";
 	}
@@ -313,56 +323,57 @@ public class CoactivoController {
 	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=consultar")
 	public String consultar(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, Model model,
 			RedirectAttributes flash) throws JSONException {
+
+		Consulta selector = new Consulta();
+		if (!consulta(embargo).isEmpty()) {
+			selector.setSelector(consulta(embargo));
+			Gson gson = new Gson();
+			String consulta = gson.toJson(selector);
+			System.out.println("Consulta: " + consulta);
+			//String mensaje = EmbargosController.consultaGeneral(consulta);
+			String mensaje="{\"key\":1,\"Record\":{\"idAutoridad\":\"AUT1\",\"numProceso\":\"PRC1\",\"fechaOficio\":{\"day\":23,\"month\":3,\"year\":2017},\"tipoEmbargo\":\"COACTIVO\",\"numCuentaAgrario\":92345654,\"demandados\":[{\"identificacion\":789,\"nombres\":\"SANTIAGO\",\"apellidos\":\"ORTEGA\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES178\",\"fechaResolucion\":{\"day\":18,\"month\":5,\"year\":2018},\"montoAEmbargar\":34500000},{\"identificacion\":678,\"nombres\":\"CARLOS\",\"apellidos\":\"RUIZ\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES478\",\"fechaResolucion\":{\"day\":10,\"month\":4,\"year\":2019},\"montoAEmbargar\":14800000}]}},{\"key\":2,\"Record\":{\"idAutoridad\":\"AUT2\",\"numProceso\":\"PRC2\",\"numOficio\":\"OFC2\",\"fechaOficio\":{\"day\":24,\"month\":8,\"year\":2018},\"tipoEmbargo\":\"JUDICIAL\",\"montoAEmbargar\":35600000,\"numCuentaAgrario\":92567432,\"demandados\":[{\"identificacion\":543,\"nombres\":\"JUAN\",\"apellidos\":\"RUIZ\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES348\",\"fechaResolucion\":{\"day\":23,\"month\":11,\"year\":2017},\"montoAEmbargar\":14500000},{\"identificacion\":212,\"nombres\":\"DIEGO\",\"apellidos\":\"LOPEZ\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES328\",\"fechaResolucion\":{\"day\":28,\"month\":10,\"year\":2018},\"montoAEmbargar\":24500000}]}}";
+			System.out.println("Mensaje: " + mensaje);
+			ArrayList<EmbargoCoactivo> embargos = new ArrayList<EmbargoCoactivo>();
+			mensaje = "[" + mensaje + "]";
+			JSONArray myjson = new JSONArray(mensaje);
+
+			for (int i = 0; i < myjson.length(); i++) {
+				JSONObject jsonRecord = myjson.getJSONObject(i).getJSONObject("Record");
+				embargos.add(jsontoObject(jsonRecord));
+			}
+			
+			for (int i = 0; i < embargos.size(); i++) {
+				embargos.get(1).setEmbargoProcesado(true);
+			}
+
+			model.addAttribute("titulo", "Consulta");
+			model.addAttribute("form", "Consultas");
+			model.addAttribute("embargos", embargos);
+			model.addAttribute("boton", "consulta");
+			
+		} else {
+			flash.addFlashAttribute("warning", "No se puede Consultar, Por favor ingresar el campo a consultar");
+			return "redirect:/autoridad/coactivo/gestor";
+		}
+		return "autoridad/coactivo/gestor/consulta";
+
 		/*
-		 * Consulta selector = new Consulta(); if (!consulta(embargo).isEmpty()) {
-		 * 
-		 * selector.setSelector(consulta(embargo)); Gson gson = new Gson(); String
-		 * consulta = gson.toJson(selector); System.out.println("Consulta: " +
-		 * consulta); String mensaje = EmbargosController.consultaGeneral(consulta);
-		 * System.out.println("Mensaje: " + mensaje); ArrayList<EmbargoCoactivo>
-		 * embargos = new ArrayList<EmbargoCoactivo>(); mensaje = "[" + mensaje + "]";
-		 * JSONArray myjson = new JSONArray(mensaje); for (int i = 0; i <
-		 * myjson.length(); i++) { JSONObject jsonRecord =
-		 * myjson.getJSONObject(i).getJSONObject("Record");
-		 * embargos.add(jsontoObject(jsonRecord)); }
-		 * 
-		 * model.addAttribute("titulo", "Consulta"); model.addAttribute("form",
-		 * "Consultas"); model.addAttribute("id", embargo.getIdAutoridad());
+		 * ArrayList<EmbargoCoactivo> embargos = new ArrayList<EmbargoCoactivo>(); for
+		 * (int i = 0; i < 2; i++) { EmbargoCoactivo prueba = (EmbargoCoactivo)
+		 * SimulacionCasos.generarEmbargoDian(); embargos.add(prueba); }
+		 * model.addAttribute("titulo", "Consulta");
+		 *  model.addAttribute("form",
+		 * "Consultas"); 
 		 * model.addAttribute("embargos", embargos);
-		 * 
-		 * } else { flash.addFlashAttribute("warning",
-		 * "No se puede Consultar, Por favor ingresar el campo a consultar"); return
-		 * "redirect:/autoridad/coactivo/gestor"; } return
+		 * model.addAttribute("boton", "consulta"); return
 		 * "autoridad/coactivo/gestor/consulta";
 		 */
-		ArrayList<EmbargoCoactivo> embargos = new ArrayList<EmbargoCoactivo>();
-		for (int i = 0; i < 2; i++) {
-			EmbargoCoactivo prueba = (EmbargoCoactivo) SimulacionCasos.generarEmbargoDian();
-			embargos.add(prueba);
-		}
-		model.addAttribute("titulo", "Consulta");
-		model.addAttribute("form", "Consultas");
-		model.addAttribute("embargos", embargos);
-		model.addAttribute("boton", "consulta");
-		return "autoridad/coactivo/gestor/consulta";
 	}
-	
+
 	@PostMapping("/gestor/msj/{boton}")
 	public String inmsj(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, RedirectAttributes flash,
 			@PathVariable(value = "boton") String boton) {
-		flash.addFlashAttribute("embargo", embargo);
-		flash.addFlashAttribute("boton", boton);
-		flash.addFlashAttribute("success", "Embargo aplicado");
-		if(boton.equals("all")) {
-			return "redirect:/autoridad/coactivo/gestor/main";
-		}else {
-			return "redirect:/autoridad/coactivo/gestor/consulta";
-		}
-	}
 
-	@GetMapping("/gestor/main")
-	public String outmsj(Model model) {
-		System.out.println("Id Autoridad:" + embargo.getIdAutoridad());
 		System.out.println("Num proceso:" + embargo.getNumProceso());
 		System.out.println("Fecha Oficio:" + embargo.getFechaOficio());
 		System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
@@ -370,15 +381,29 @@ public class CoactivoController {
 		for (Demandado demandado : embargo.getDemandados()) {
 			System.out.println("Id Demandado:" + demandado.getIdentificacion());
 			System.out.println("Nombres demandado:" + demandado.getNombres());
+			System.out.println("Fecha res:" + demandado.getFechaResolucion());
 		}
+		flash.addFlashAttribute("embargo", embargo);
+		flash.addFlashAttribute("boton", boton);
+		flash.addFlashAttribute("success", "Embargo aplicado");
+		if (boton.equals("all")) {
+			return "redirect:/autoridad/coactivo/gestor/main";
+		} else {
+			return "redirect:/autoridad/coactivo/gestor/consulta";
+		}
+	}
+
+	@GetMapping("/gestor/main")
+	public String outmsj(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, Model model) {
+
 		model.addAttribute("titulo", "App");
 		model.addAttribute("form", "Formulario");
 		return "autoridad/coactivo/gestor/main";
 	}
-	
+
 	@GetMapping("/gestor/consulta")
-	public String outconsulta(Model model,@ModelAttribute(name = "embargo") EmbargoCoactivo embargo) {
-		System.out.println("Id Autoridad:" + embargo.getIdAutoridad());
+	public String outconsulta(Model model, @ModelAttribute(name = "embargo") EmbargoCoactivo embargo) {
+		// System.out.println("Id Autoridad:" + embargo.getIdAutoridad());
 		System.out.println("Num proceso:" + embargo.getNumProceso());
 		System.out.println("Fecha Oficio:" + embargo.getFechaOficio());
 		System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
@@ -393,8 +418,101 @@ public class CoactivoController {
 		model.addAttribute("embargos", embargos);
 		return "autoridad/coactivo/gestor/consulta";
 	}
-	
-	
+
+	@GetMapping("/imprimir")
+	public ResponseEntity<byte[]> print(Model model) throws DocumentException, IOException {
+		authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+		// Buscar todos los embargos registrados por el username
+
+		String filepdf = "file.pdf";
+		ArrayList<EmbargoCoactivo> embargos = getAllEmbargos();
+
+		createPdf(filepdf, embargos);
+
+		HttpHeaders headers = new HttpHeaders();
+		Path pdfPath = Paths.get(filepdf);
+		byte[] pdf = Files.readAllBytes(pdfPath);
+		headers.setContentType(MediaType.parseMediaType("application/pdf"));
+		headers.add("Content-Disposition", "inline; filename=" + filepdf);
+		headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+		ResponseEntity<byte[]> response = new ResponseEntity<byte[]>(pdf, headers, HttpStatus.OK);
+
+		return response;
+
+	}
+
+	public void createPdf(String dest, ArrayList<EmbargoCoactivo> embargos)
+			throws FileNotFoundException, DocumentException {
+		Document document = new Document();
+		PdfWriter.getInstance(document, new FileOutputStream(dest));
+		document.open();
+
+		for (int i = 0; i < embargos.size(); i++) {
+
+			PdfPTable table = new PdfPTable(2);
+			PdfPTable table2 = new PdfPTable(7);
+			table.setSpacingBefore(10f);
+			table.setSpacingAfter(12.5f);
+			table2.setSpacingBefore(10f);
+			table2.setSpacingAfter(12.5f);
+			table.setWidthPercentage(100);
+			table.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+			table.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+			table.addCell("Numero Proceso: " + embargos.get(i).getNumProceso());
+			table.addCell("Numero Oficio: " + embargos.get(i).getNumOficio());
+			table.addCell("Fecha Oficio: " + embargos.get(i).getFechaOficio());
+			table.addCell("Tipo Embargo: " + embargos.get(i).getTipoEmbargo());
+			table.addCell("Numero Cuenta Banco Agrario: " + embargos.get(i).getNumCuentaAgrario());
+
+			document.add(table);
+
+			Font f = new Font(FontFamily.HELVETICA, 13, Font.NORMAL, GrayColor.GRAYWHITE);
+			PdfPCell cell = new PdfPCell(new Phrase("Demandantes", f));
+			cell.setBackgroundColor(GrayColor.GRAYBLACK);
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setColspan(7);
+			table2.setWidthPercentage(100);
+			table2.addCell(cell);
+			table2.getDefaultCell().setBackgroundColor(new GrayColor(0.75f));
+			for (int j = 0; j < 1; j++) {
+				table2.addCell("Identificacion");
+				table2.addCell("Tipo Identificacion");
+				table2.addCell("Nombres");
+				table2.addCell("Apellidos");
+				table2.addCell("Resolucion Embargo");
+				table2.addCell("Fecha Resolucion");
+				table2.addCell("Monto a Embargar");
+			}
+			table2.setHeaderRows(1);
+			table2.getDefaultCell().setBackgroundColor(GrayColor.GRAYWHITE);
+			table2.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+			for (Demandado demandado : embargos.get(i).getDemandados()) {
+				table2.addCell(demandado.getIdentificacion());
+				table2.addCell(demandado.getTipoIdentificacion().toString());
+				table2.addCell(demandado.getNombres());
+				table2.addCell(demandado.getApellidos());
+				table2.addCell(demandado.getResEmbargo());
+				table2.addCell(demandado.getFechaResolucion().toString());
+				table2.addCell(demandado.getMontoAEmbargar().toString());
+			}
+			document.add(table2);
+			document.newPage();
+		}
+
+		document.close();
+	}
+
+	public ArrayList<EmbargoCoactivo> getAllEmbargos() {
+		ArrayList<EmbargoCoactivo> embargos = new ArrayList<EmbargoCoactivo>();
+		for (int i = 0; i < 2; i++) {
+			EmbargoCoactivo prueba = (EmbargoCoactivo) SimulacionCasos.generarEmbargoDian();
+			embargos.add(prueba);
+		}
+		return embargos;
+	}
+
 	public HashMap<String, String> consulta(EmbargoCoactivo embargo) {
 		HashMap<String, String> campos = new HashMap<String, String>();
 
@@ -487,14 +605,12 @@ public class CoactivoController {
 						TipoIdentificacion.valueOf(jsonDemandados.getJSONObject(k).getString("tipoIdentificacion")));
 				demandado.setNombres(jsonDemandados.getJSONObject(k).getString("nombres"));
 				demandado.setApellidos(jsonDemandados.getJSONObject(k).getString("apellidos"));
-				// demandado.setResEmbargo(jsonDemandados.getJSONObject(k).getString("resEmbargo"));
-				// JSONObject jsonFecha =
-				// jsonDemandados.getJSONObject(k).getJSONObject("fechaResolucion");
-				// LocalDate localDate =
-				// LocalDate.of(Integer.parseInt(jsonFecha.getString("year")),
-				// Integer.parseInt(jsonFecha.getString("month")),
-				// Integer.parseInt(jsonFecha.getString("day")));
-				// demandado.setFechaResolucion(localDate);
+				demandado.setResEmbargo(jsonDemandados.getJSONObject(k).getString("resEmbargo"));
+				JSONObject jsonFecha =jsonDemandados.getJSONObject(k).getJSONObject("fechaResolucion");
+				LocalDate localDate =LocalDate.of(Integer.parseInt(jsonFecha.getString("year")),
+				Integer.parseInt(jsonFecha.getString("month")),
+				Integer.parseInt(jsonFecha.getString("day")));
+				demandado.setFechaResolucion(localDate);
 				demandado
 						.setMontoAEmbargar(new BigDecimal(jsonDemandados.getJSONObject(k).getString("montoAEmbargar")));
 				demandados.add(demandado);

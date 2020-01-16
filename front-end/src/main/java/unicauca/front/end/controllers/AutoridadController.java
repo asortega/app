@@ -2,6 +2,7 @@ package unicauca.front.end.controllers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.json.JSONArray;
@@ -41,7 +42,7 @@ public class AutoridadController {
 	private Authentication authentication;
 	private Autoridad autoridad = new Autoridad();
 	private Usuario usuario = new Usuario();
-	private BackEndController backendcontroller = new BackEndController();
+	
 	private String boton;
 	
 	@GetMapping("/main")
@@ -61,10 +62,10 @@ public class AutoridadController {
 		String username = authentication.getName();
 		if (checkUsuario(usuario)) {
 			if (usuario.getPassword().equals(usuario.getConfirmPassword())) {
-				if (backendcontroller.obtenerUsuario(usuario.getUsername()) == null) {
+				if (BackEndController.obtenerUsuario(usuario.getUsername()) == null) {
 					// Buscar en fabric la autoridad por el ownedBy
-					Usuario usuarioLogin = backendcontroller.obtenerUsuario(username);
-					Autoridad autoridad = backendcontroller.obtenerAutoridad(usuarioLogin.getOwnedBy());
+					Usuario usuarioLogin = BackEndController.obtenerUsuario(username);
+					Autoridad autoridad = BackEndController.obtenerAutoridad(usuarioLogin.getOwnedBy());
 					usuario.getRoles().add(autoridad.getTipoAutoridad().toString());
 					EmbargosController.guardarUsuario(usuario);
 					flash.addFlashAttribute("success", "Usuario creado con exito");
@@ -105,7 +106,7 @@ public class AutoridadController {
 			Gson gson = new Gson();
 			String consulta = gson.toJson(selector);
 			System.out.println("Consulta: " + consulta);
-			String mensaje="{\"key\":1,\"Record\":{\"identificacion\":123,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"santiago\",\"apellidos\":\"ortega\",\"username\":\"as\"}}";
+			String mensaje="{\"key\":1,\"Record\":{\"identificacion\":123,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"santiago\",\"apellidos\":\"ortega\",\"username\":\"as\",\"roles\":[\"GESTOR\",\"JUDICIAL\"]}}";
 			// String mensaje = EmbargosController.consultaGeneral(consulta);
 			System.out.println("Mensaje: " + mensaje);
 			ArrayList<Usuario> usuarios = new ArrayList<Usuario>();
@@ -114,6 +115,9 @@ public class AutoridadController {
 			for (int i = 0; i < myjson.length(); i++) {
 				JSONObject jsonRecord = myjson.getJSONObject(i).getJSONObject("Record");
 				usuarios.add(jsontoObject(jsonRecord));
+			}
+			for (Usuario usuario2 : usuarios) {
+				System.out.println("Roles: "+usuario2.getRoles());
 			}
 			model.addAttribute("titulo", "Consulta");
 			model.addAttribute("form", "Consultas");
@@ -139,7 +143,7 @@ public class AutoridadController {
 		 * System.out.println("Habilitado:" + usuario.isHabilitado());
 		 * System.out.println("Roles:" + usuario.getRoles());
 		 */
-		Usuario usuarionew= backendcontroller.obtenerUsuario(usuario.getUsername());
+		Usuario usuarionew= BackEndController.obtenerUsuario(usuario.getUsername());
 		model.addAttribute("titulo", "Consulta");
 		model.addAttribute("form", "Consultas");
 		model.addAttribute("usuario", usuarionew);
@@ -243,7 +247,15 @@ public class AutoridadController {
 		if (jsonRecord.has("username")) {
 			usuario.setUsername(jsonRecord.getString("username"));
 		}
-			
+		ArrayList<String> roles = new ArrayList<String>();
+		if (jsonRecord.has("roles")) {
+			JSONArray jsonRoles = jsonRecord.getJSONArray("roles");
+
+			for (int k = 0; k < jsonRoles.length(); k++) {
+				roles.add(jsonRoles.getString(k));
+			}
+			usuario.setRoles(roles);
+		}		
 		return usuario;
 	}
 

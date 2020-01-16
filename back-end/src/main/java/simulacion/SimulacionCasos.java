@@ -37,7 +37,7 @@ public class SimulacionCasos {
 	    String departamentoCuentaAgrario="departamento"+ThreadLocalRandom.current().nextInt(1, 30+ 1);
 		
 	    //Generar demandantes
-		int randomNum = ThreadLocalRandom.current().nextInt(1, 3+ 1);
+		int randomNum = ThreadLocalRandom.current().nextInt(20, 25+ 1);
 		ArrayList<Demandante> demandantes=new ArrayList<>();
 		for (int i = 0; i < randomNum; i++) {
 			String identificacion=Integer.toString(ThreadLocalRandom.current().nextInt(1, 99999+ 1));
@@ -48,7 +48,7 @@ public class SimulacionCasos {
 		}
 		
 		//Generar demandados
-		randomNum = ThreadLocalRandom.current().nextInt(1, 3 + 1);
+		randomNum = ThreadLocalRandom.current().nextInt(20, 25+ 1);
 		ArrayList<Demandado> demandados=new ArrayList<>();
 		for (int i = 0; i < randomNum; i++) {
 			String identificacion=Integer.toString(ThreadLocalRandom.current().nextInt(1, 99999+ 1));
@@ -72,6 +72,7 @@ public class SimulacionCasos {
 		String idEmbargo="embargo"+ThreadLocalRandom.current().nextInt(1, 99999+ 1);
 		String idAutoridad="autoridad"+ThreadLocalRandom.current().nextInt(1, 99999+ 1);
 		String numProceso=Integer.toString(ThreadLocalRandom.current().nextInt(1, 99999+ 1));
+		String numOficio=Integer.toString(ThreadLocalRandom.current().nextInt(1, 99999+ 1));
 	    LocalDate fechaOficio = LocalDate.ofEpochDay(randomDay);
 	    TipoEmbargo tipoEmbargo= TipoEmbargo.values()[ThreadLocalRandom.current().nextInt(0, TipoEmbargo.values().length)];	    
 	    String numCuentaAgrario=Integer.toString(ThreadLocalRandom.current().nextInt(1, 99999+ 1));
@@ -80,7 +81,7 @@ public class SimulacionCasos {
 		
 		
 		//Generar demandados
-		int randomNum = ThreadLocalRandom.current().nextInt(1, 3 + 1);
+		int randomNum = ThreadLocalRandom.current().nextInt(20, 25 + 1);
 		ArrayList<Demandado> demandados=new ArrayList<>();
 		for (int i = 0; i < randomNum; i++) {
 			String identificacion=Integer.toString(ThreadLocalRandom.current().nextInt(1, 99999+ 1));
@@ -92,7 +93,8 @@ public class SimulacionCasos {
 			BigDecimal monto = min.add(new BigDecimal(Math.random()).multiply(max.subtract(min))).setScale(2, BigDecimal.ROUND_HALF_UP);
 			demandados.add(new DemandadoDian(identificacion, nombres, apellidos, tipoIdentificacion, monto,resEmbargo,fechaResolucion));
 		}
-		Embargo embargo= new EmbargoCoactivo(idEmbargo, idAutoridad, numProceso, fechaOficio, tipoEmbargo, numCuentaAgrario, ciudadCuentaAgrario, departamentoCuentaAgrario, demandados);
+		//Embargo embargo= new EmbargoCoactivo(idEmbargo, idAutoridad, numProceso, fechaOficio, tipoEmbargo, numCuentaAgrario, ciudadCuentaAgrario, departamentoCuentaAgrario, demandados);
+		Embargo embargo= new EmbargoCoactivo(idEmbargo, idAutoridad, numProceso, fechaOficio, tipoEmbargo, numCuentaAgrario, ciudadCuentaAgrario, departamentoCuentaAgrario, demandados, numOficio);
 	    return embargo;
 		
 	}

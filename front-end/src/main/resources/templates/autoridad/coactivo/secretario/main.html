@@ -4,9 +4,9 @@
 <body>
 	
 		<!--Panel-->
-		<form th:action="@{/autoridad/secretario/coactivo}"
+		<form th:action="@{/autoridad/coactivo/secretario}"
 			th:object="${embargoCoactivo}" method="post">
-			<nav th:replace="autoridad/secretario/navbar :: panel"></nav>
+			<nav th:replace="autoridad/coactivo/secretario/navbar :: panel"></nav>
 			<div class="container-fluid" id="css-contenido">
 				<div th:replace="layout :: alerts"></div>
 				<div class="card border-dark bg-light" id="card-inicio">
@@ -20,32 +20,45 @@
 						<div class="form-row">
 							<div class="col-md-4">
 								<label>Numero Proceso</label> <input type="text"
-									class="form-control text-uppercase" th:field="*{numProceso}">
+									class="form-control text-uppercase" th:field="*{numProceso}"
+									onkeypress="return /[0-9]/i.test(event.key)"
+									onpaste="return false" 
+									maxlength="50"
+									>
 							</div>
 							<div class="col-md-4">
-								<label for="fechaOficio">Fecha Oficio</label>
-								<div class="input-group date" data-provide="datepicker">
-									<input type="text" class="form-control" id="fechaOficio"
-										th:field="*{fechaOficio}" readonly>
-									<div class="input-group-addon">
-										<span class="glyphicon glyphicon-th"></span>
-									</div>
-								</div>
+								<label>Numero Oficio</label> <input type="text"
+									class="form-control text-uppercase" th:field="*{numOficio}"
+									onkeypress="return /[0-9]/i.test(event.key)"
+									onpaste="return false" 
+									maxlength="20"
+									>
 							</div>
+							<div class="col-md-4">
+								<label for="fechaOficio">Fecha Oficio</label> <input type="text"
+									class="picker form-control" th:field="*{fechaOficio}"
+									readonly>
+							</div>
+							
+						</div>
+						<div class="form-row">
 							<div class="col-md-4">
 								<label for="tipoEmbargo">Tipo Embargo</label> <select
 									th:field="*{tipoEmbargo}" class="form-control" id="tipoEmbargo">
+									<option value="" selected></option>
 									<option
 										th:each="tipoEmbargo : ${T(enumeraciones.TipoEmbargo).values()}"
 										th:value="${tipoEmbargo}" th:text="${tipoEmbargo}"></option>
 								</select>
 							</div>
-						</div>
-						<div class="form-row">
 							<div class="col-md-4">
 								<label for="numCuenta">Numero Cuenta Banco Agrario</label> <input
 									type="text" class="form-control" id="numCuenta"
-									th:field="*{numCuentaAgrario}">
+									th:field="*{numCuentaAgrario}"
+									onkeypress="return /[0-9]/i.test(event.key)"
+									onpaste="return false" 
+									maxlength="50"
+									>
 							</div>
 						</div>
 
@@ -67,7 +80,11 @@
 										<tr th:each="demandado, item : *{demandados}">
 											<td><input name="identificacion" type="text"
 												class="form-control text-uppercase"
-												th:field="*{demandados[__${item.index}__].identificacion}" />
+												th:field="*{demandados[__${item.index}__].identificacion}"
+												onkeypress="return /[0-9]/i.test(event.key)"
+												onpaste="return false" 
+												maxlength="20" 
+												/>
 											</td>
 											<td><select class="form-control text-uppercase"
 												th:field="*{demandados[__${item.index}__].tipoIdentificacion}">
@@ -79,13 +96,25 @@
 											</select></td>
 											<td><input name="nombres" type="text"
 												class="form-control text-uppercase"
-												th:field="*{demandados[__${item.index}__].nombres}" /></td>
+												th:field="*{demandados[__${item.index}__].nombres}"
+												onkeypress="return /[a-z]/i.test(event.key)"
+												onpaste="return false"
+												maxlength="50" 
+												/></td>
 											<td><input name="apellidos" type="text"
 												class="form-control text-uppercase"
-												th:field="*{demandados[__${item.index}__].apellidos}" /></td>
+												th:field="*{demandados[__${item.index}__].apellidos}"
+												onkeypress="return /[a-z]/i.test(event.key)"
+												onpaste="return false"
+												maxlength="50" 
+												/></td>
 											<td><input name="resEmbargo" type="text"
 												class="form-control text-uppercase"
-												th:field="*{demandados[__${item.index}__].resEmbargo}" /></td>
+												th:field="*{demandados[__${item.index}__].resEmbargo}"
+												onkeypress="return /[0-9]/i.test(event.key)"
+												onpaste="return false" 
+												maxlength="20" 
+												/></td>
 											<td><input name="fechaResolucion" type="text"
 												class="form-control text-uppercase"
 												th:field="*{demandados[__${item.index}__].fechaResolucion}" /></td>

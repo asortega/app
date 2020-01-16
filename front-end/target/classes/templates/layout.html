@@ -64,26 +64,70 @@
 		<script type="text/javascript">
 		
 	      $(document).ready(function(){
-	          $("#exampleModalScrollable").modal('show');
-	          $('.picker').datetimepicker({
-	  			timepicker: false,
-	  			datepicker: true,
-	  			format:'d/m/y',
-	  		 });
-	  	   $(".alertop").fadeTo(2000, 500).slideUp(500, function(){
+	          	$("#exampleModalScrollable").modal('show');
+	          	$('.picker').datetimepicker({
+	  				timepicker: false,
+	  				datepicker: true,
+	  				format:'d/m/y',
+	  		 	});
+	  	   		$(".alertop").fadeTo(2000, 500).slideUp(500, function(){
         	    $(".alert-dismissible").alert('close');
-        	}); 	       	 
+        	    $('#no-paste').bind('copy paste cut',function(e) { 
+        	    	 e.preventDefault(); //disable cut,copy,paste
+        	    
+  		      });
+        	});
 	      });
 
 	      $(document).on('change', '.custom-file-input', function (event) {
 	    	    $(this).next('.custom-file-label').html(event.target.files[0].name);
 	    	})
+	    	
+	    	
+
+			
   		</script>
-		
+
 	</footer>
 </body>
 </html>
 <!-- 
+
+function isNumberKey(evt)
+			{
+				var charCode = (evt.which) ? evt.which : evt.keyCode;
+				if (charCode != 46 && charCode > 31 
+				&& (charCode < 48 || charCode > 57))
+				return false;
+				return true;
+			} 
+
+		      
+			
+			function isNumericKey(evt)
+			{
+				var charCode = (evt.which) ? evt.which : evt.keyCode;
+				if (charCode > 93 && charCode < 123)
+				return true;
+				return false;
+			}
+
+			function alphaOnly(event) {
+				var value = String.fromCharCode(event.which);
+				   var pattern = new RegExp(/[a-zåäö ]/i);
+				   return pattern.test(value);
+				};
+
+$('input').on('input', function() {
+				  var c = this.selectionStart,
+				      r = /[^a-z0-9]/gi,
+				      v = $(this).val();
+				  if(r.test(v)) {
+				    $(this).val(v.replace(r, ''));
+				    c--;
+				  }
+				  this.setSelectionRange(c, c);
+				});
 
 $('.input-group').datepicker({
 	        	  	format: 'dd/mm/yy',

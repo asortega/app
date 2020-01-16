@@ -237,7 +237,9 @@ public class AdminController {
 			Gson gson = new Gson();
 			String consulta = gson.toJson(selector);
 			System.out.println("Consulta: " + consulta);
-			String mensaje = "{\"key\":1,\"Record\":{\"idAutoridad\":\"fong\",\"idAutoridad\":\"fong\",\"usuarios\":[{\"identificacion\":789,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"santiago\",\"apellidos\":\"ortega\",\"username\":\"as\"},{\"identificacion\":678,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"carlos\",\"apellidos\":\"ruiz\",\"username\":\"cr\"}]}}";
+			
+			String mensaje = "{\"key\":1,\"Record\":{\"idAutoridad\":\"AUT1\",\"nombre\":\"JUZGADO1\",\"tipoAutoridad\":\"JUDICIAL\",\"direccion\":\"Calle 2 # 489\",\"departamento\":\"CAUCA\",\"ciudad\":\"POPAYÁN\",\"usuarios\":[{\"identificacion\":789,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"santiago\",\"apellidos\":\"ortega\",\"username\":\"as\"},{\"identificacion\":678,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"carlos\",\"apellidos\":\"ruiz\",\"username\":\"cr\"}]}},{\"key\":2,\"Record\":{\"idAutoridad\":\"AUT2\",\"nombre\":\"JUZGADO2\",\"tipoAutoridad\":\"JUDICIAL\",\"direccion\":\"Calle 12 # 459\",\"departamento\":\"CAUCA\",\"ciudad\":\"POPAYÁN\",\"usuarios\":[{\"identificacion\":098,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"daniel\",\"apellidos\":\"agredo\",\"username\":\"dg\"},{\"identificacion\":430,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"juan\",\"apellidos\":\"pizo\",\"username\":\"cr\"}]}}";
+			
 			// String mensaje = EmbargosController.consultaGeneral(consulta);
 			System.out.println("Mensaje: " + mensaje);
 			ArrayList<Autoridad> autoridades = new ArrayList<Autoridad>();

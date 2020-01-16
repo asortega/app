@@ -28,8 +28,7 @@
 						<form action="#"
 							th:action="@{'/autoridad/judicial/gestor/msj/'+${boton}}"
 							th:object="${embargo}" method="post">
-							<input type="hidden" th:field="*{idEmbargo}" />
-							<input type="hidden" th:field="*{idAutoridad}" /> 
+							<input type="hidden" th:field="*{username}" /> 
 							<input type="hidden" th:field="*{numProceso}" /> 
 							<input type="hidden" th:field="*{numOficio}" /> 
 							<input type="hidden" th:field="*{fechaOficio}" /> 

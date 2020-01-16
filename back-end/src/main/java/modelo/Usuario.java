@@ -37,7 +37,7 @@ public class Usuario extends Persona{
 
 
 	public Usuario() {
-		// TODO Auto-generated constructor stub
+		this.habilitado = true;
 	}
 
 	public String getUsername() {

@@ -152,10 +152,6 @@ $(document)
 					$("div.toolbar3").html('<b>Demandante</b>');
 					$("div.toolbar4").html('<b>Demandado</b>');
 					
-					
-					
-					
-					
 				});
 
 /*

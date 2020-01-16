@@ -1,6 +1,7 @@
 package unicauca.front.end.auth;
 
 import java.security.Principal;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,12 +37,12 @@ public class LoginController {
 		
 		return "login";
 	}
-	/*
+	
 	@GetMapping("/crear")
 	public String usuario(Model model) {
 
 		Persona persona = new Persona();
-		UsuarioBD usuario = new UsuarioBD();
+		Usuario usuario = new Usuario();
 		model.addAttribute("titulo", "Login");
 		model.addAttribute("form", "Formulario");
 		model.addAttribute("persona", persona);
@@ -54,12 +55,12 @@ public class LoginController {
 			@ModelAttribute(name = "usuario") Usuario usuario, Model model, RedirectAttributes flash) {
 
 		flash.addFlashAttribute("success", "Usuario creado con exito, por favor iniciar sesion");
-		String[] roles = { "PERSONA" };
-		usuario.setUsername(persona.getIdentificacion());
-		//usuario.setRoles(roles);
-		EmbargosController.guardarUsuario(usuario);
+		ArrayList<String> roles = new ArrayList<>();
+		roles.add("PERSONA");
+		usuario.setRoles(roles);
+		//EmbargosController.guardarUsuario(usuario);
 
 		return "redirect:login";
-	}*/
+	}
 
 }

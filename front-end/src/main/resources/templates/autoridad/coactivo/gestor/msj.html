@@ -26,9 +26,9 @@
 						<form action="#"
 							th:action="@{'/autoridad/coactivo/gestor/msj/'+${boton}}"
 							th:object="${embargo}" method="post">
-							<input type="hidden" th:field="*{idEmbargo}" />
-							<input type="hidden" th:field="*{idAutoridad}" /> 
-							<input type="hidden" th:field="*{numProceso}" />  
+							<input type="hidden" th:field="*{username}" /> 
+							<input type="hidden" th:field="*{numProceso}" />
+							<input type="hidden" th:field="*{numOficio}" />  
 							<input type="hidden" th:field="*{fechaOficio}" /> 
 							<input type="hidden" th:field="*{tipoEmbargo}" />
 							<input type="hidden" th:field="*{numCuentaAgrario}" /> 
@@ -52,6 +52,13 @@
 										<td><input name="apellidos" type="text"
 											class="form-control text-uppercase"
 											th:field="*{demandados[__${item.index}__].apellidos}" /></td>
+										<td><input name="resEmbargo" type="text"
+												class="form-control text-uppercase"
+												th:field="*{demandados[__${item.index}__].resEmbargo}" /></td>
+										<td>
+											<input name="fechaResolucion" class="picker form-control" 
+											th:field="*{demandados[__${item.index}__].fechaResolucion}" >
+										</td>
 										<td><input name="montoAEmbargar" type="text"
 											class="form-control text-uppercase"
 											th:field="*{demandados[__${item.index}__].montoAEmbargar}" />

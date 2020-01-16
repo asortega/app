@@ -9,7 +9,7 @@ import enumeraciones.TipoEmbargo;
 public class Embargo {
 	
 	
-	private String idAutoridad;
+	private String username;
 	private String numProceso;
 	private LocalDate fechaOficio;
 	private TipoEmbargo tipoEmbargo;
@@ -20,11 +20,11 @@ public class Embargo {
     private ArrayList<Demandado> demandados= new ArrayList<>();
     
     
-	public Embargo(String idAutoridad, String numProceso, LocalDate fechaOficio,
+	public Embargo(String username, String numProceso, LocalDate fechaOficio,
 			TipoEmbargo tipoEmbargo, String numCuentaAgrario, String ciudadCuentaAgrario,
 			String departamentoCuentaAgrario, ArrayList<Demandado> demandados) {
 		super();		
-		this.idAutoridad = idAutoridad;
+		this.username = username;
 		this.numProceso = numProceso;
 		this.fechaOficio = fechaOficio;
 		this.tipoEmbargo = tipoEmbargo;
@@ -39,12 +39,14 @@ public class Embargo {
 		this.embargoProcesado = false;
 	}
 
-	public String getIdAutoridad() {
-		return idAutoridad;
+	public String getUsername() {
+		return username;
 	}
-	public void setIdAutoridad(String idAutoridad) {
-		this.idAutoridad = idAutoridad;
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
+
 	public String getNumProceso() {
 		return numProceso;
 	}

@@ -4,7 +4,7 @@
 <body>
 
 	<!--Panel-->
-	<form th:action="@{/autoridad/judicial/secretario}"
+	<form th:action="@{/autoridad/judicial/secretario/form}"
 		th:object="${embargoJudicial}" method="post">
 		<nav th:replace="autoridad/judicial/secretario/navbar :: panel"></nav>
 		<div class="container-fluid" id="css-contenido">
@@ -47,6 +47,7 @@
 						<div class="col-md-4">
 							<label for="tipoEmbargo">Tipo Embargo</label> <select
 								th:field="*{tipoEmbargo}" class="form-control" id="tipoEmbargo">
+								<option value="" selected></option>
 								<option
 									th:each="tipoEmbargo : ${T(enumeraciones.TipoEmbargo).values()}"
 									th:value="${tipoEmbargo}" th:text="${tipoEmbargo}"></option>
@@ -90,6 +91,7 @@
 										</td>
 										<td><select class="form-control text-uppercase"
 											th:field="*{demandantes[__${item.index}__].tipoIdentificacion}">
+												<option value="" selected></option>
 												<option
 													th:each="tipoIdentificacion : 
 											    		${T(enumeraciones.TipoIdentificacion).values()}"
@@ -135,6 +137,7 @@
 										</td>
 										<td><select class="form-control text-uppercase"
 											th:field="*{demandados[__${item.index}__].tipoIdentificacion}">
+												<option value="" selected></option>
 												<option
 													th:each="tipoIdentificacion : 
 											    		${T(enumeraciones.TipoIdentificacion).values()}"

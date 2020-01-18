@@ -82,7 +82,7 @@ import simulacion.SimulacionPasarelas;
 import unicauca.front.end.service.Consulta;
 import unicauca.front.end.service.Service;
 import util.SessionHelper;
-//3136347333
+
 @Controller
 @RequestMapping("/autoridad/judicial")
 public class JudicialController {
@@ -102,41 +102,6 @@ public class JudicialController {
 		service = new Service();
 	}
 	
-	/***
-	 * 
-	 * @param model
-	 * @return
-	 */
-	@GetMapping("/secretario")
-	public String secretario(Model model) {
-		EmbargoJudicial embargoJudicial = new EmbargoJudicial();
-		embargoJudicial.getDemandantes().add(new Demandante());
-		embargoJudicial.getDemandados().add(new Demandado());
-		model.addAttribute("titulo", "App");
-		model.addAttribute("form", "Formulario");
-		model.addAttribute("embargoJudicial", embargoJudicial);
-		return "autoridad/judicial/secretario/main";
-
-	}
-
-	@PostMapping("/secretario")
-	public String consJudicial(@ModelAttribute(name = "embargoJudicial") EmbargoJudicial embargoJudicial, Model model,
-			RedirectAttributes flash) {
-		ArrayList<EmbargoJudicial> embargos = new ArrayList<EmbargoJudicial>();
-
-		for (int i = 0; i < 2; i++) {
-			EmbargoJudicial prueba = (EmbargoJudicial) SimulacionCasos.generarEmbargoNormal();
-			embargos.add(prueba);
-		}
-		model.addAttribute("titulo", "Consulta");
-		model.addAttribute("form", "Consultas");
-		//model.addAttribute("id", embargoJudicial.getIdAutoridad());
-		model.addAttribute("embargos", embargos);
-		return "autoridad/judicial/secretario/consulta";
-	}
-	
-	
-	
 	// ------------GESTOR-----------
 	@Secured("ROLE_JUDICIAL")
 	@GetMapping("/gestor")
@@ -152,18 +117,7 @@ public class JudicialController {
 		return "autoridad/judicial/gestor/main";
 	}
 
-	/*
-	 * @GetMapping("/gestor/cargar") public String cargarEmbargo(Model model) {
-	 * 
-	 * embargo = (EmbargoJudicial) SimulacionCasos.generarEmbargoNormal();
-	 * //embargo= (EmbargoJudicial) generarEmbargoNormal();
-	 * model.addAttribute("titulo","Embargo"); model.addAttribute("form",
-	 * "Formulario"); model.addAttribute("embargo", embargo);
-	 * model.addAttribute("boton", "all"); return "autoridad/judicial/gestor/main";
-	 * }
-	 */
-
-	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=cargar")
+	@RequestMapping(value = "/form", method = RequestMethod.POST, params = "action=cargar")
 	public String cargarEmbargo(@RequestParam("file") MultipartFile archivo, Model model, RedirectAttributes flash)
 			throws IOException {
 		boolean band = false;
@@ -399,21 +353,6 @@ public class JudicialController {
 		}
 	}
 	
-	public ArrayList<EmbargoJudicial> onJson(String mensaje) throws JSONException {
-		ArrayList<EmbargoJudicial> embargos = new ArrayList<EmbargoJudicial>();
-		mensaje = "[" + mensaje + "]";
-		JSONArray myjson = new JSONArray(mensaje);
-		for (int i = 0; i < myjson.length(); i++) {
-			JSONObject jsonRecord = myjson.getJSONObject(i).getJSONObject("Record");
-			jsontoObject(jsonRecord).setEmbargoProcesado(true);
-			embargos.add(jsontoObject(jsonRecord));
-		}
-		for (int i = 0; i < embargos.size(); i++) {
-			embargos.get(1).setEmbargoProcesado(true);
-		}
-		return embargos;
-	}
-
 	@PostMapping("/gestor/msj/{boton}")
 	public String inmsj(@ModelAttribute(name = "embargo") EmbargoJudicial embargo, RedirectAttributes flash,
 			@PathVariable(value = "boton") String boton) {
@@ -448,7 +387,6 @@ public class JudicialController {
 	@GetMapping("/gestor/consulta")
 	public String outconsulta(Model model, @ModelAttribute(name = "embargo") EmbargoJudicial embargo) {
 
-		
 		System.out.println("Num proceso:" + embargo.getNumProceso());
 		System.out.println("Fecha Oficio:" + embargo.getFechaOficio());
 		System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
@@ -464,8 +402,59 @@ public class JudicialController {
 		return "autoridad/judicial/gestor/consulta";
 	}
 	
-	//@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=imprimir",produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-	//@RequestMapping(value = "/gestor/aplicar", method = RequestMethod.POST, params = "action=imprimir")
+	/***
+	 * 
+	 * @param model
+	 * @return
+	 */
+	@GetMapping("/secretario")
+	public String judicial(Model model) {
+		EmbargoJudicial embargoJudicial = new EmbargoJudicial();
+		embargoJudicial.getDemandantes().add(new Demandante());
+		embargoJudicial.getDemandados().add(new Demandado());
+		model.addAttribute("titulo", "App");
+		model.addAttribute("form", "Formulario");
+		model.addAttribute("embargoJudicial", embargoJudicial);
+		return "autoridad/judicial/secretario/main";
+	}
+
+	@RequestMapping(value = "/secretario/form", method = RequestMethod.POST, params = "action=consultar")
+	public String judicial(@ModelAttribute(name = "embargoJudicial") EmbargoJudicial embargo, Model model,
+			RedirectAttributes flash) throws JSONException {
+		Consulta selector = new Consulta();
+		if (!consulta(embargo).isEmpty()) {
+			selector.setSelector(consulta(embargo));
+			Gson gson = new Gson();
+			String consulta = gson.toJson(selector);
+			System.out.println("Consulta: " + consulta);
+			String mensaje="{\"key\":1,\"Record\":{\"idAutoridad\":\"AUT1\",\"numProceso\":\"PRC1\",\"numOficio\":\"OFC1\",\"fechaOficio\":{\"day\":21,\"month\":11,\"year\":2019},\"tipoEmbargo\":\"JUDICIAL\",\"montoAEmbargar\":54000000,\"numCuentaAgrario\":92345654,\"demandados\":[{\"identificacion\":789,\"nombres\":\"SANTIAGO\",\"apellidos\":\"ORTEGA\",\"tipoIdentificacion\":\"NATURAL\",\"montoAEmbargar\":34500000},{\"identificacion\":678,\"nombres\":\"CARLOS\",\"apellidos\":\"RUIZ\",\"tipoIdentificacion\":\"NATURAL\",\"montoAEmbargar\":34500000}],\"demandantes\":[{\"identificacion\":432,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"MIGUEL\",\"apellidos\":\"ROSERO\"},{\"identificacion\":543,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"LUIS\",\"apellidos\":\"CRUZ\"}]}},{\"key\":2,\"Record\":{\"idAutoridad\":\"AUT2\",\"numProceso\":\"PRC2\",\"numOficio\":\"OFC2\",\"fechaOficio\":{\"day\":24,\"month\":8,\"year\":2018},\"tipoEmbargo\":\"JUDICIAL\",\"montoAEmbargar\":34000000,\"numCuentaAgrario\":92567432,\"demandados\":[{\"identificacion\":543,\"nombres\":\"JUAN\",\"apellidos\":\"RUIZ\",\"tipoIdentificacion\":\"NATURAL\",\"montoAEmbargar\":14500000},{\"identificacion\":212,\"nombres\":\"DIEGO\",\"apellidos\":\"LOPEZ\",\"tipoIdentificacion\":\"NATURAL\",\"montoAEmbargar\":24500000}],\"demandantes\":[{\"identificacion\":213,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"CAMILO\",\"apellidos\":\"FUENTES\"},{\"identificacion\":321,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"RICARDO\",\"apellidos\":\"CIFUENTES\"}]}}";
+			
+			//String mensaje = EmbargosController.consultaGeneral(consulta);
+			System.out.println("Mensaje: " + mensaje);
+			ArrayList<EmbargoJudicial> embargos=onJson(mensaje);
+			model.addAttribute("titulo", "Consulta");
+			model.addAttribute("form", "Consultas");
+			model.addAttribute("embargos", embargos);
+			model.addAttribute("boton", "consulta");
+			return "autoridad/judicial/secretario/consulta";
+		} else {
+			flash.addFlashAttribute("warning", "No se puede Consultar, Por favor ingresar el campo a consultar");
+			return "redirect:/autoridad/judicial/secretario";
+		}
+	}
+	
+	public ArrayList<EmbargoJudicial> onJson(String mensaje) throws JSONException {
+		ArrayList<EmbargoJudicial> embargos = new ArrayList<EmbargoJudicial>();
+		mensaje = "[" + mensaje + "]";
+		JSONArray myjson = new JSONArray(mensaje);
+		for (int i = 0; i < myjson.length(); i++) {
+			JSONObject jsonRecord = myjson.getJSONObject(i).getJSONObject("Record");
+			jsontoObject(jsonRecord).setEmbargoProcesado(true);
+			embargos.add(jsontoObject(jsonRecord));
+		}
+		return embargos;
+	}
+	
 	@GetMapping("/gestor/imprimir")
 	public ResponseEntity<byte[]> print(Model model) throws DocumentException, IOException, JSONException {
 		authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -487,7 +476,6 @@ public class JudicialController {
         ResponseEntity<byte[]> response = new ResponseEntity<byte[]>(pdf, headers, HttpStatus.OK);
         
         return response;
-        
 	}
 	
 	public void createPdf(String dest,ArrayList<EmbargoJudicial> embargos) throws FileNotFoundException, DocumentException {
@@ -730,8 +718,7 @@ public class JudicialController {
 		}
 		return embargoJudicial;
 	}
+	
+	
+	
 }
-//String mensaje
-//="{\"key\":1,\"Record\":{\"idAutoridad\":\"fong\",\"demandados\":[{\"identificacion\":789,\"nombres\":\"santiago\"},{\"identificacion\":678,\"nombres\":\"carlos\"}],\"demandantes\":[{\"identificacion\":432,\"nombres\":\"miguel\"},{\"identificacion\":543,\"nombres\":\"luis\"}]}}";
-//String mensaje =
-//"[{\"key\":1,\"Record\":{\"idAutoridad\":\"fong\",\"demandados\":[{\"identificacion\":789,\"nombres\":\"santiago\"},{\"identificacion\":678,\"nombres\":\"carlos\"}],\"demandantes\":[{\"identificacion\":432,\"nombres\":\"miguel\"},{\"identificacion\":543,\"nombres\":\"luis\"}]}},{\"key\":2,\"Record\":{\"idAutoridad\":\"view\",\"demandados\":[{\"identificacion\":909,\"nombres\":\"andres\"},{\"identificacion\":232,\"nombres\":\"jose\"}],\"demandantes\":[{\"identificacion\":111,\"nombres\":\"paul\"},{\"identificacion\":564,\"nombres\":\"joe\"}]}}]";

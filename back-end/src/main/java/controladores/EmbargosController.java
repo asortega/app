@@ -132,10 +132,7 @@ public class EmbargosController {
 	}
 
 	public static String obtenerUsuario(String username) {
-		
-		String json="{\"identificacion\":123,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"santiago\",\"apellidos\":\"ortega\",\"username\":\"as\",\"password\":123,\"confirmPassword\":123}";
-		return json; 
-		/*
+
 	
 		String stringResponse = "";
 		try {
@@ -152,7 +149,7 @@ public class EmbargosController {
 			e.printStackTrace();
 		}
 		return stringResponse;
-		*/
+		
 	}
 	
 	public static String obtenerPersona(String idPersona, String tipoIdentificacion) {

@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 
+import controladores.LoginController;
+
 @SpringBootApplication
 public class FrontEndApplication {
 
@@ -14,6 +16,7 @@ public class FrontEndApplication {
 	}
 
 	public static void main(String[] args) {
+		LoginController.bootstrapLogin();
 		SpringApplication.run(FrontEndApplication.class, args);
 	}
 

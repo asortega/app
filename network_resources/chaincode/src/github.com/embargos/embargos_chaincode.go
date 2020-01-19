@@ -53,11 +53,7 @@ func (t *Chaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	}
 
 	if function == "editarEmbargo" {
-		err := json.Unmarshal([]byte(args[0]), &embargoMapped)
-		if err != nil {
-			return shim.Bad("Información mal estructurada, verificar estructura del embargo en la solicitud.")
-		}
-		return embargoMapped.EditarEmbargo(stub, args)
+		return shim.Error("Invocacion prohibida")
 	}
 
 	//Checked

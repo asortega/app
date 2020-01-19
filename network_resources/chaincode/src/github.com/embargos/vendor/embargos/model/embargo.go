@@ -14,6 +14,7 @@ import (
 // Reprensenta un embargo en la blockchain, utilizada para la deserializacion y serializacion
 // de un embargo en formato JSON
 type Embargo struct {
+	Username         string       `json:"username"`
 	NumProceso       string       `json:"numProceso"`
 	IdAutoridad      string       `json:"idAutoridad"`
 	NumOficio        string       `json:"numOficio,omitempty"`
@@ -22,6 +23,7 @@ type Embargo struct {
 	MontoAEmbargar   float64      `json:"montoAEmbargar,omitempty"`
 	NumCuentaAgrario string       `json:"numCuentaAgrario"`
 	EmbargoProcesado bool         `json:"embargoProcesado"`
+	Embargado        bool         `json:"embargado"`
 	Demandantes      []Demandante `json:"demandantes,omitempty"`
 	Demandados       []Demandado  `json:"demandados"`
 }

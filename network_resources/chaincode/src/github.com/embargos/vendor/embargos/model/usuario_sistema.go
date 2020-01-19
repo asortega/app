@@ -15,6 +15,7 @@ type UsuarioSistema struct {
 	Password        string   `json:"password"`
 	ConfirmPassword string   `json:"confirmPassword"`
 	Roles           []string `json:"roles"`
+	OwnedBy         string   `json:"ownedby"`
 	Habilitado      bool     `json:"habilitado"`
 }
 

@@ -8,35 +8,41 @@ import enumeraciones.TipoEmbargo;
 
 public class Embargo {
 	
-	
+	private String idAutoridad;
 	private String username;
 	private String numProceso;
 	private LocalDate fechaOficio;
 	private TipoEmbargo tipoEmbargo;
 	private String numCuentaAgrario;
-	private String ciudadCuentaAgrario;
-	private String departamentoCuentaAgrario;
 	private Boolean embargoProcesado;
+	private Boolean embargado;
     private ArrayList<Demandado> demandados= new ArrayList<>();
     
     
-	public Embargo(String username, String numProceso, LocalDate fechaOficio,
-			TipoEmbargo tipoEmbargo, String numCuentaAgrario, String ciudadCuentaAgrario,
-			String departamentoCuentaAgrario, ArrayList<Demandado> demandados) {
-		super();		
+	public Embargo(String idAutoridad, String username, String numProceso, LocalDate fechaOficio,
+			TipoEmbargo tipoEmbargo, String numCuentaAgrario, Boolean embargoProcesado,
+			ArrayList<Demandado> demandados) {
+		super();
+		this.idAutoridad = idAutoridad;
 		this.username = username;
 		this.numProceso = numProceso;
 		this.fechaOficio = fechaOficio;
 		this.tipoEmbargo = tipoEmbargo;
 		this.numCuentaAgrario = numCuentaAgrario;
-		this.ciudadCuentaAgrario = ciudadCuentaAgrario;
-		this.departamentoCuentaAgrario = departamentoCuentaAgrario;
 		this.embargoProcesado = false;
 		this.demandados = demandados;
 	}
 	
 	public Embargo() {
 		this.embargoProcesado = false;
+	}
+	
+	public String getIdAutoridad() {
+		return idAutoridad;
+	}
+
+	public void setIdAutoridad(String idAutoridad) {
+		this.idAutoridad = idAutoridad;
 	}
 
 	public String getUsername() {
@@ -71,18 +77,6 @@ public class Embargo {
 	public void setNumCuentaAgrario(String numCuentaAgrario) {
 		this.numCuentaAgrario = numCuentaAgrario;
 	}
-	public String getCiudadCuentaAgrario() {
-		return ciudadCuentaAgrario;
-	}
-	public void setCiudadCuentaAgrario(String ciudadCuentaAgrario) {
-		this.ciudadCuentaAgrario = ciudadCuentaAgrario;
-	}
-	public String getDepartamentoCuentaAgrario() {
-		return departamentoCuentaAgrario;
-	}
-	public void setDepartamentoCuentaAgrario(String departamentoCuentaAgrario) {
-		this.departamentoCuentaAgrario = departamentoCuentaAgrario;
-	}
 	public Boolean getEmbargoProcesado() {
 		return embargoProcesado;
 	}
@@ -96,13 +90,7 @@ public class Embargo {
 		this.demandados = demandados;
 	}
 
-	@Override
-	public String toString() {
-		return "Embargo [numProceso=" + numProceso + ", tipoEmbargo=" + tipoEmbargo
-				+ ", numCuentaAgrario=" + numCuentaAgrario + ", ciudadCuentaAgrario=" + ciudadCuentaAgrario
-				+ ", departamentoCuentaAgrario=" + departamentoCuentaAgrario + ", embargoProcesado=" + embargoProcesado
-				+ "]";
-	}
+	
 
 
 }

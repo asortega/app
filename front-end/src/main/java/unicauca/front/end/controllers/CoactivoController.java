@@ -60,7 +60,7 @@ import modelo.Demandado;
 import modelo.Embargo;
 import modelo.EmbargoCoactivo;
 import modelo.Intento;
-import simulacion.SimulacionCasos;
+//import simulacion.SimulacionCasos;
 import simulacion.SimulacionPasarelas;
 import unicauca.front.end.service.Consulta;
 import unicauca.front.end.service.Service;
@@ -342,8 +342,8 @@ public class CoactivoController {
 		System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
 		System.out.println("Num Cuenta Agrario:" + embargo.getNumCuentaAgrario());
 		ArrayList<EmbargoCoactivo> embargos = new ArrayList<>();
-		EmbargoCoactivo prueba = (EmbargoCoactivo) SimulacionCasos.generarEmbargoDian();
-		embargos.add(prueba);
+		//EmbargoCoactivo prueba = (EmbargoCoactivo) SimulacionCasos.generarEmbargoDian();
+		//embargos.add(prueba);
 		embargo.setEmbargoProcesado(true);
 		embargos.add(embargo);
 		model.addAttribute("titulo", "App");
@@ -408,9 +408,9 @@ public class CoactivoController {
 		// Buscar todos los embargos registrados por el username
 
 		String filepdf = "file.pdf";
-		ArrayList<EmbargoCoactivo> embargos = getAllEmbargos();
+		//ArrayList<EmbargoCoactivo> embargos = getAllEmbargos();
 
-		createPdf(filepdf, embargos);
+		//createPdf(filepdf, embargos);
 
 		HttpHeaders headers = new HttpHeaders();
 		Path pdfPath = Paths.get(filepdf);
@@ -485,7 +485,8 @@ public class CoactivoController {
 
 		document.close();
 	}
-
+	
+	/*
 	public ArrayList<EmbargoCoactivo> getAllEmbargos() {
 		ArrayList<EmbargoCoactivo> embargos = new ArrayList<EmbargoCoactivo>();
 		for (int i = 0; i < 2; i++) {
@@ -493,7 +494,7 @@ public class CoactivoController {
 			embargos.add(prueba);
 		}
 		return embargos;
-	}
+	}*/
 
 	public HashMap<String, String> consulta(EmbargoCoactivo embargo) {
 		HashMap<String, String> campos = new HashMap<String, String>();

@@ -43,7 +43,7 @@ import modelo.Demandante;
 import modelo.EmbargoCoactivo;
 import modelo.EmbargoJudicial;
 import modelo.Usuario;
-import simulacion.SimulacionCasos;
+//import simulacion.SimulacionCasos;
 import unicauca.front.end.service.Consulta;
 
 @Controller
@@ -51,7 +51,6 @@ import unicauca.front.end.service.Consulta;
 public class AdminController {
 
 	private Faker faker;
-	private Usuario usuario;
 	private String boton;
 
 	@GetMapping("/app")
@@ -74,11 +73,11 @@ public class AdminController {
 		int tam = autoridad.getUsuarios().size();
 		if (checkAutoridad(autoridad)) {
 			if (checkUsuario(autoridad.getUsuarios().get(tam - 1))) {
-				// Consultar si no existe el usuario a agregar en la Blockchain(No esta)
+
 				if (BackEndController.obtenerUsuario(autoridad.getUsuarios().get(tam - 1).getUsername()) == null) {
 					if (autoridad.getUsuarios().get(tam - 1).getConfirmPassword()
 							.equals(autoridad.getUsuarios().get(tam - 1).getPassword())) {
-						// Crear nuevo usuario en la Blockchain(no esta)
+
 						autoridad.getUsuarios().get(tam - 1).setOwnedBy(autoridad.getIdAutoridad());
 						autoridad.getUsuarios().get(tam - 1).getRoles().add("ADMIN");
 						EmbargosController.guardarUsuario(autoridad.getUsuarios().get(tam - 1));
@@ -105,7 +104,7 @@ public class AdminController {
 		}
 		if (band == true) {
 			flash.addFlashAttribute("success", "Autoridad creada con exito");
-			//EmbargosController.guardarAutoridad(autoridad);
+			EmbargosController.guardarAutoridad(autoridad);
 		}
 
 		flash.addFlashAttribute("autoridad", autoridad);
@@ -114,46 +113,6 @@ public class AdminController {
 		return "redirect:/admin/app/crear";
 
 	}
-	/*
-	 	System.out.println(autoridad.getUsuarios().get(tam - 1).getIdentificacion());
-		System.out.println(autoridad.getUsuarios().get(tam - 1).getTipoIdentificacion());
-		System.out.println(autoridad.getUsuarios().get(tam - 1).getNombres());
-		System.out.println(autoridad.getUsuarios().get(tam - 1).getApellidos());
-		System.out.println(autoridad.getUsuarios().get(tam - 1).getUsername());
-		System.out.println(autoridad.getUsuarios().get(tam - 1).getPassword());
-		System.out.println(autoridad.getUsuarios().get(tam - 1).getConfirmPassword());
-	 
-	 */
-	
-	
-	/*
-	 * @RequestMapping(value = "/app/form", method = RequestMethod.POST, params =
-	 * "action=crear") public String crearAut(@Valid @ModelAttribute(name =
-	 * "autoridad") Autoridad autoridad,Errors errors, Model model,
-	 * RedirectAttributes flash) { if(errors.hasErrors()) {
-	 * model.addAttribute("titulo", "App"); model.addAttribute("form",
-	 * "Formulario"); boton = "all"; model.addAttribute("boton", boton); return
-	 * "admin/main"; }else { flash.addFlashAttribute("success",
-	 * "Autoridad creada con exito"); return "redirect:/admin/app/crear"; } }
-	 */
-
-	/*
-	 * public String checkAll(Autoridad autoridad) {
-	 * 
-	 * int tam = autoridad.getUsuarios().size(); String msj=null; if
-	 * (checkAutoridad(autoridad)) { if
-	 * (checkUsuario(autoridad.getUsuarios().get(tam - 1))) { if
-	 * (usuarioDao.findByUsername(autoridad.getUsuarios().get(tam -
-	 * 1).getUsername()) == null) { if (autoridad.getUsuarios().get(tam -
-	 * 1).getConfirmPassword() .equals(autoridad.getUsuarios().get(tam -
-	 * 1).getPassword())) { msj="ok"; } else {
-	 * msj="No se puede Crear Autoridad,Contraseñas de Usuario no coinciden"; } }
-	 * else {
-	 * 
-	 * //msj="error""No se puede Crear Autoridad,Nombre de Usuario ya existe";
-	 * 
-	 * } return mensaje; }
-	 */
 
 	@GetMapping("/app/crear")
 	public String system(Model model) {
@@ -237,10 +196,15 @@ public class AdminController {
 			Gson gson = new Gson();
 			String consulta = gson.toJson(selector);
 			System.out.println("Consulta: " + consulta);
-			
-			String mensaje = "{\"key\":1,\"Record\":{\"idAutoridad\":\"AUT1\",\"nombre\":\"JUZGADO1\",\"tipoAutoridad\":\"JUDICIAL\",\"direccion\":\"Calle 2 # 489\",\"departamento\":\"CAUCA\",\"ciudad\":\"POPAYÁN\",\"usuarios\":[{\"identificacion\":789,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"santiago\",\"apellidos\":\"ortega\",\"username\":\"as\"},{\"identificacion\":678,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"carlos\",\"apellidos\":\"ruiz\",\"username\":\"cr\"}]}},{\"key\":2,\"Record\":{\"idAutoridad\":\"AUT2\",\"nombre\":\"JUZGADO2\",\"tipoAutoridad\":\"JUDICIAL\",\"direccion\":\"Calle 12 # 459\",\"departamento\":\"CAUCA\",\"ciudad\":\"POPAYÁN\",\"usuarios\":[{\"identificacion\":098,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"daniel\",\"apellidos\":\"agredo\",\"username\":\"dg\"},{\"identificacion\":430,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"juan\",\"apellidos\":\"pizo\",\"username\":\"cr\"}]}}";
-			
-			// String mensaje = EmbargosController.consultaGeneral(consulta);
+
+			// String mensaje =
+			// "{\"key\":1,\"Record\":{\"idAutoridad\":\"AUT1\",\"nombre\":\"JUZGADO1\",\"tipoAutoridad\":\"JUDICIAL\",\"direccion\":\"Calle
+			// 2 #
+			// 489\",\"departamento\":\"CAUCA\",\"ciudad\":\"POPAYÁN\",\"usuarios\":[{\"identificacion\":789,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"santiago\",\"apellidos\":\"ortega\",\"username\":\"as\"},{\"identificacion\":678,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"carlos\",\"apellidos\":\"ruiz\",\"username\":\"cr\"}]}},{\"key\":2,\"Record\":{\"idAutoridad\":\"AUT2\",\"nombre\":\"JUZGADO2\",\"tipoAutoridad\":\"JUDICIAL\",\"direccion\":\"Calle
+			// 12 #
+			// 459\",\"departamento\":\"CAUCA\",\"ciudad\":\"POPAYÁN\",\"usuarios\":[{\"identificacion\":098,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"daniel\",\"apellidos\":\"agredo\",\"username\":\"dg\"},{\"identificacion\":430,\"tipoIdentificacion\":\"NATURAL\",\"nombres\":\"juan\",\"apellidos\":\"pizo\",\"username\":\"cr\"}]}}";
+
+			String mensaje = EmbargosController.consultaGeneral(consulta);
 			System.out.println("Mensaje: " + mensaje);
 			ArrayList<Autoridad> autoridades = new ArrayList<Autoridad>();
 			mensaje = "[" + mensaje + "]";
@@ -259,17 +223,6 @@ public class AdminController {
 			flash.addFlashAttribute("warning", "No se puede Consultar, Por favor ingresar el campo a consultar");
 			return "redirect:/admin/app";
 		}
-
-		/*
-		 * ArrayList<Autoridad> autoridades = new ArrayList<Autoridad>();
-		 * 
-		 * for (int i = 0; i < 2; i++) { Autoridad prueba = create();
-		 * autoridades.add(prueba); } model.addAttribute("titulo", "Consulta");
-		 * model.addAttribute("form", "Consultas"); model.addAttribute("autoridades",
-		 * autoridades); boton = "actualizar"; model.addAttribute("boton", boton);
-		 * 
-		 * return "admin/consulta";
-		 */
 	}
 
 	@RequestMapping(value = "/app/form", method = RequestMethod.POST, params = "action=actualizar")
@@ -285,7 +238,6 @@ public class AdminController {
 		model.addAttribute("autoridad", autoridadnew);
 		boton = "inactualizar";
 		model.addAttribute("boton", boton);
-		// flash.addFlashAttribute("boton2", "activar");
 		return "admin/main";
 	}
 
@@ -294,58 +246,46 @@ public class AdminController {
 			RedirectAttributes flash) {
 
 		boolean band = false;
-		int tam = autoridad.getUsuarios().size();
 		if (checkAutoridad(autoridad)) {
-
-			for (Usuario usuario : autoridad.getUsuarios()) {
-				if (checkUsuario(usuario)) { // Consultar si no existe el usuario a agregar en la Blockchain(No esta)
-					if (BackEndController.obtenerUsuario(usuario.getUsername()) == null) {
-						if (usuario.getPassword().equals(usuario.getConfirmPassword())) {
-							// Crear nuevo usuario en la Blockchain(no esta)
-							EmbargosController.guardarUsuario(autoridad.getUsuarios().get(tam - 1));
+			for (int i = 0; i < autoridad.getUsuarios().size(); i++) {
+				if (checkUsuario(autoridad.getUsuarios().get(i))) { 
+					if (BackEndController.obtenerUsuario(autoridad.getUsuarios().get(i).getUsername()) == null) {
+						if (autoridad.getUsuarios().get(i).getPassword().equals(autoridad.getUsuarios().get(i).getConfirmPassword())) {
+							EmbargosController.guardarUsuario(autoridad.getUsuarios().get(i));
 							band = true;
 						} else {
 							flash.addFlashAttribute("error",
-									"No se puede Crear Autoridad,Contraseñas de Usuario no coinciden");
+									"No se puede Actualizar Autoridad,Contraseñas de Usuario no coinciden");
 							band = false;
 						}
 					} else {
-						// Buscar usuario en la block y actualizar
-						// UsuarioBD usuarioBD=usuarioDao.findByUsername(usuario.getUsername());
-						// usuarioBD.setPassword(usuario.getPassword()); band = true; } } else {
-						flash.addFlashAttribute("error",
-								"No se puede Crear Autoridad,Por favor llenar el formulario Usuario");
-						band = false;
+						Usuario userfind = BackEndController.obtenerUsuario(autoridad.getUsuarios().get(i).getUsername());
+						updateUser(userfind,autoridad.getUsuarios().get(i));
+						band = true;
 					}
 				} else {
-					flash.addFlashAttribute("error", "No se puede Crear Autoridad,Por favor llenar el formulario");
+					flash.addFlashAttribute("error",
+							"No se puede Actualizar Autoridad,Por favor llenar el formulario Usuario");
 					band = false;
 				}
 			}
+			Autoridad autoridadfind= BackEndController.obtenerAutoridad(autoridad.getIdAutoridad());
+			updateAutoridad(autoridadfind,autoridad);
+		} else {
+			flash.addFlashAttribute("error", "No se puede Crear Autoridad,Por favor llenar el formulario");
+			band = false;
 		}
 
-			if (band == true) {
-				flash.addFlashAttribute("success", "Autoridad actualizada con exito");
-				boton = "actualizar";
-				flash.addFlashAttribute("autoridad", autoridad);
-				flash.addFlashAttribute("boton", boton);
-				return "redirect:/admin/app/consulta";
-				// EmbargosController.guardarAutoridad(autoridad);
-			} else {
-				flash.addFlashAttribute("autoridad", autoridad);
-				return "redirect:/admin/app/actualizar";
-			}
-		
-
-		/*
-		 * ArrayList<Autoridad> autoridades = new ArrayList<Autoridad>();
-		 * 
-		 * for (int i = 0; i < 2; i++) { Autoridad prueba = create();
-		 * autoridades.add(prueba); } boton = "actualizar";
-		 * flash.addFlashAttribute("autoridades", autoridades);
-		 * flash.addFlashAttribute("boton", boton); return
-		 * "redirect:/admin/app/consulta";
-		 */
+		if (band == true) {
+			flash.addFlashAttribute("success", "Autoridad actualizada con exito");
+			boton = "actualizar";
+			flash.addFlashAttribute("autoridad", autoridad);
+			flash.addFlashAttribute("boton", boton);
+			return "redirect:/admin/app/consulta";
+		} else {
+			flash.addFlashAttribute("autoridad", autoridad);
+			return "redirect:/admin/app/actualizar";
+		}
 	}
 
 	@GetMapping("/app/actualizar")
@@ -355,6 +295,28 @@ public class AdminController {
 		boton = "inactualizar";
 		model.addAttribute("boton", boton);
 		return "admin/main";
+	}
+
+	public void updateUser(Usuario userfind,Usuario usuario) {
+		userfind.setIdentificacion(usuario.getIdentificacion());
+		userfind.setTipoIdentificacion(usuario.getTipoIdentificacion());
+		userfind.setNombres(usuario.getNombres());
+		userfind.setApellidos(usuario.getApellidos());
+		userfind.setUsername(usuario.getUsername());
+		userfind.setPassword(usuario.getPassword());
+		userfind.setConfirmPassword(usuario.getPassword());
+		EmbargosController.editarUsuario(userfind);
+	}
+	
+	public void updateAutoridad(Autoridad autoridadfind,Autoridad autoridad) {
+		autoridadfind.setIdAutoridad(autoridad.getIdAutoridad());
+		autoridadfind.setNombre(autoridad.getNombre());
+		autoridadfind.setTipoAutoridad(autoridad.getTipoAutoridad());
+		autoridadfind.setDireccion(autoridad.getDireccion());
+		autoridadfind.setCiudad(autoridad.getCiudad());
+		autoridadfind.setDepartamento(autoridad.getDepartamento());
+		autoridadfind.setUsuarios(autoridad.getUsuarios());
+		EmbargosController.editarAutoridad(autoridadfind);
 	}
 
 	public HashMap<String, String> consulta(Autoridad autoridad) {

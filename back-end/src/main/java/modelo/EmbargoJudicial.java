@@ -11,18 +11,19 @@ public class EmbargoJudicial extends Embargo{
 	private BigDecimal montoAEmbargar;
 	private String numOficio;
 	private ArrayList<Demandante> demandantes= new ArrayList<>();
+	
+	
 
-	public EmbargoJudicial(String idEmbargo, String idAutoridad, String numProceso, LocalDate fechaOficio,
-			TipoEmbargo tipoEmbargo, String numCuentaAgrario, String ciudadCuentaAgrario,
-			String departamentoCuentaAgrario, ArrayList<Demandado> demandados,
+	public EmbargoJudicial(String idAutoridad, String username, String numProceso, LocalDate fechaOficio,
+			TipoEmbargo tipoEmbargo, String numCuentaAgrario, Boolean embargoProcesado, ArrayList<Demandado> demandados,
 			BigDecimal montoAEmbargar, String numOficio, ArrayList<Demandante> demandantes) {
-		super(idAutoridad, numProceso, fechaOficio, tipoEmbargo, numCuentaAgrario, ciudadCuentaAgrario,
-				departamentoCuentaAgrario, demandados);
+		super(idAutoridad, username, numProceso, fechaOficio, tipoEmbargo, numCuentaAgrario, embargoProcesado,
+				demandados);
 		this.montoAEmbargar = montoAEmbargar;
 		this.numOficio = numOficio;
 		this.demandantes = demandantes;
 	}
-	
+
 	public EmbargoJudicial() {}
 
 	public BigDecimal getMontoAEmbargar() {

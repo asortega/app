@@ -15,7 +15,7 @@ import modelo.Embargo;
 import modelo.EmbargoCoactivo;
 import modelo.EmbargoJudicial;
 import modelo.Persona;
-
+/*
 public class SimulacionCasos {
 	
 	public static Embargo generarEmbargoNormal() {
@@ -99,4 +99,4 @@ public class SimulacionCasos {
 		
 	}
 	
-}
+}*/

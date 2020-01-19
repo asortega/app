@@ -17,7 +17,9 @@ public class ClienteController {
 
 	@GetMapping("/persona")
 	public String persona(Model model) {
-
+		
+		//Guardar en clase Usuario
+		
 		// Buscar el id en la lista de demandados de cada embargo guardado en la
 		// blockchain
 		ArrayList<Embargo> bdEmbargos = new ArrayList<Embargo>();

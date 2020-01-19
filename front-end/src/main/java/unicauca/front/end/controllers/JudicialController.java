@@ -77,7 +77,7 @@ import modelo.EmbargoCoactivo;
 import modelo.EmbargoJudicial;
 import modelo.Intento;
 import modelo.Usuario;
-import simulacion.SimulacionCasos;
+//import simulacion.SimulacionCasos;
 import simulacion.SimulacionPasarelas;
 import unicauca.front.end.service.Consulta;
 import unicauca.front.end.service.Service;
@@ -236,9 +236,8 @@ public class JudicialController {
 	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=aplicar")
 	public String aplicar(@ModelAttribute(name = "embargo") EmbargoJudicial embargo, Model model,
 			RedirectAttributes flash) {
-		System.out.println("Monto:"+ embargo.getMontoAEmbargar());
-		return "redirect:/autoridad/judicial/gestor";
-		/*
+		//System.out.println("Monto:"+ embargo.getMontoAEmbargar());
+		//return "redirect:/autoridad/judicial/gestor";
 		try {
 			KieSession sessionStatefull = session.obtenerSesion();
 			sessionStatefull.insert(embargo);
@@ -255,7 +254,7 @@ public class JudicialController {
 		} catch (NullPointerException e) {
 			flash.addFlashAttribute("warning", "No se puede Aplicar,Por favor llenar el formulario");
 			return "redirect:/autoridad/judicial/gestor";
-		}*/
+		}
 	}
 
 	@PostMapping("/gestor/aplicar")
@@ -392,8 +391,8 @@ public class JudicialController {
 		System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
 		System.out.println("Num Cuenta Agrario:" + embargo.getNumCuentaAgrario());
 		ArrayList<EmbargoJudicial> embargos = new ArrayList<EmbargoJudicial>();
-		EmbargoJudicial prueba = (EmbargoJudicial) SimulacionCasos.generarEmbargoNormal();
-		embargos.add(prueba);
+		//EmbargoJudicial prueba = (EmbargoJudicial) SimulacionCasos.generarEmbargoNormal();
+		//embargos.add(prueba);
 		embargo.setEmbargoProcesado(true);
 		embargos.add(embargo);
 		model.addAttribute("titulo", "App");
@@ -558,7 +557,7 @@ public class JudicialController {
        
         document.close();
     }
-	
+	/*
 	public ArrayList<EmbargoJudicial> getAllEmbargos() {
 		ArrayList<EmbargoJudicial> embargos = new ArrayList<EmbargoJudicial>();
 		for (int i = 0; i < 2; i++) {
@@ -566,7 +565,7 @@ public class JudicialController {
 			embargos.add(prueba);
 		}
 		return embargos;
-	}
+	}*/
 
 	public boolean isValid(EmbargoJudicial embargoJudicial) {
 		return !embargoJudicial.getUsername().isEmpty() && !embargoJudicial.getNumProceso().isEmpty()

@@ -68,6 +68,24 @@ public class EmbargosController {
 		}	
 	}
 	
+	public static void editarAutoridad(Autoridad autoridad) {
+		try {
+			
+			String autoridadJson=gson.toJson(autoridad);
+			System.out.println(autoridadJson);
+			String[] arguments = {autoridadJson};	
+			Collection<ProposalResponse> responses = Util.createInvoke("editarAutoridad", arguments);
+			for (ProposalResponse res: responses) {
+				Status status = res.getStatus();
+				Logger.getLogger(EmbargosController.class.getName()).log(Level.INFO,
+						"Resultado de creacion de autoridad: " + status);
+			}
+									
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
+	}
+	
 
 	public static void guardarUsuario(Usuario usuario) {
 		try {
@@ -79,12 +97,34 @@ public class EmbargosController {
 			System.out.println(arguments);
 			
 			Collection<ProposalResponse> responses = Util.createInvoke("crearUsuarioSistema", arguments);
-			/*
+			
 			for (ProposalResponse res: responses) {
 				Status status = res.getStatus();
 				Logger.getLogger(EmbargosController.class.getName()).log(Level.INFO,
 						"Resultado de creacion de usuario: " + status);
-			}*/
+			}
+									
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
+	}
+	
+	public static void editarUsuario(Usuario usuario) {
+		try {
+			
+			String usuarioJson=gson.toJson(usuario);
+			System.out.println(usuarioJson);
+			
+			String[] arguments = {usuarioJson};
+			System.out.println(arguments);
+			
+			Collection<ProposalResponse> responses = Util.createInvoke("editarUsuarioSistema", arguments);
+			
+			for (ProposalResponse res: responses) {
+				Status status = res.getStatus();
+				Logger.getLogger(EmbargosController.class.getName()).log(Level.INFO,
+						"Resultado de creacion de usuario: " + status);
+			}
 									
 		} catch (Exception e) {
 			e.printStackTrace();

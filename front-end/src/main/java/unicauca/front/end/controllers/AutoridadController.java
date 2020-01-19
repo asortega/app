@@ -55,7 +55,7 @@ public class AutoridadController {
 		model.addAttribute("boton", "all");
 		return "autoridad/admin/main";
 	}
-
+	
 	@RequestMapping(value = "/form", method = RequestMethod.POST, params = "action=crear")
 	public String admin(@ModelAttribute(name = "usuario") Usuario usuario, Model model, RedirectAttributes flash) {
 		authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -38,7 +38,6 @@ func (t *Chaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	usuarioMapped := model.Usuario{}
 	usuarioSistemaMapped := model.UsuarioSistema{}
 
-	//Checked
 	if function == "crearEmbargo" {
 		err := json.Unmarshal([]byte(args[0]), &embargoMapped)
 		if err != nil {
@@ -47,21 +46,22 @@ func (t *Chaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return embargoMapped.CrearEmbargo(stub, args)
 	}
 
-	//Checked
 	if function == "consultarEmbargo" {
 		return embargoMapped.ConsultarEmbargo(stub, args)
 	}
 
 	if function == "editarEmbargo" {
-		return shim.Error("Invocacion prohibida")
+		err := json.Unmarshal([]byte(args[0]), &embargoMapped)
+		if err != nil {
+			return shim.Bad("Información mal estructurada, verificar estructura del embargo en la solicitud.")
+		}
+		return embargoMapped.EditarEmbargo(stub, args)
 	}
 
-	//Checked
 	if function == "eliminarEmbargo" {
 		return shim.Error("Invocacion prohibida")
 	}
 
-	//Checked
 	if function == "consultarEmbargoPorCampo" {
 		return embargoMapped.ConsultarEmbargoPorCampo(stub, args)
 	}
@@ -70,35 +70,28 @@ func (t *Chaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return embargoMapped.HistorialEmbargo(stub, args)
 	}
 
-	//---
-
-	//Checked
 	if function == "crearAutoridad" {
 		json.Unmarshal([]byte(args[0]), &autoridadMapped)
 		return autoridadMapped.CrearAutoridad(stub, args)
 	}
-	//Checked
+
 	if function == "consultarAutoridad" {
 		return model.ConsultarAutoridad(stub, args)
 	}
 
-	//Checked
 	if function == "consultarUsuarioEmbargosAutPag" {
 		return model.ConsultarUsuarioEmbargosAutPag(stub, args)
 	}
 
-	//Checked
 	if function == "editarAutoridad" {
 		json.Unmarshal([]byte(args[0]), &autoridadMapped)
 		return autoridadMapped.EditarAutoridad(stub, args)
 	}
 
-	//Checked
 	if function == "eliminarAutoridad" {
 		return shim.Error("Invocacion prohibida")
 	}
 
-	//Checked
 	if function == "consultarAutoridadPorCampo" {
 		return autoridadMapped.ConsultarAutoridadPorCampo(stub, args)
 	}
@@ -107,39 +100,30 @@ func (t *Chaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return autoridadMapped.HistorialAutoridad(stub, args)
 	}
 
-	//---//Checked
-	//Invocacion prohibida
 	if function == "crearUsuario" {
 		return usuarioMapped.CrearUsuario(stub, args)
 	}
 
-	//Checked
 	if function == "consultarUsuario" {
 		return usuarioMapped.ConsultarUsuario(stub, args)
 	}
 
-	//Checked
-	//Invocacion prohibida
 	if function == "editarUsuario" {
 		return usuarioMapped.EditarUsuario(stub, args)
 	}
 
-	//Checked
 	if function == "eliminarUsuario" {
 		return shim.Error("Invocacion prohibida")
 	}
 
-	//Checked
 	if function == "consultarUsuarioEmbargosDtePag" {
 		return usuarioMapped.ConsultarUsuarioEmbargosDtePag(stub, args)
 	}
 
-	//Checked
 	if function == "consultarUsuarioEmbargosDteTotal" {
 		return usuarioMapped.ConsultarUsuarioEmbargosDteTotal(stub, args)
 	}
 
-	//Checked
 	if function == "consultarUsuarioPorCampo" {
 		return usuarioMapped.ConsultarUsuarioPorCampo(stub, args)
 	}
@@ -148,7 +132,6 @@ func (t *Chaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return usuarioMapped.HistorialUsuario(stub, args)
 	}
 
-	//---
 	if function == "crearUsuarioSistema" {
 		err := json.Unmarshal([]byte(args[0]), &usuarioSistemaMapped)
 		if err != nil {

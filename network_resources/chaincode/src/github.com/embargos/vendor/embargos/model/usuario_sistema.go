@@ -17,6 +17,7 @@ type UsuarioSistema struct {
 	Roles           []string `json:"roles"`
 	OwnedBy         string   `json:"ownedby"`
 	Habilitado      bool     `json:"habilitado"`
+	IdAutoridad     string   `json:"idAutoridad"`
 }
 
 func (u *UsuarioSistema) CrearUsuarioSistema(stub shim.ChaincodeStubInterface, args []string) pb.Response {

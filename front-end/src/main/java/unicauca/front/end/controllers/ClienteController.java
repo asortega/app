@@ -54,15 +54,26 @@ public class ClienteController {
 		Usuario usuario = BackEndController.obtenerUsuario(username);
 
 		String consulta = "{\"selector\": {\"demandados\": {\"$elemMatch\": {\"identificacion\": {\"$eq\": \""
-				+ usuario.getIdentificacion() + "\"},\"tipoIdentificacion\": {\"$eq\": \""
-				+ usuario.getTipoIdentificacion() + "\"}}}}}";
-		
+				+ usuario.getIdentificacion() + "\"}}}}}";
+
 		ArrayList<Embargo> embargos = jsontoEmbargos(consulta);
 		ArrayList<Autoridad> autoridades = new ArrayList<Autoridad>();
+		// if ( autoridad != null) {
+		// for (Autoridad autoridad2 : autoridades) {
+		// if(!autoridad2.getIdAutoridad().equals(autoridad.getIdAutoridad())) {
+
 		for (Embargo embargo : embargos) {
-			
-			if (BackEndController.obtenerAutoridad(embargo.getIdAutoridad()) != null) {
-				autoridades.add(BackEndController.obtenerAutoridad(embargo.getIdAutoridad()));
+			Autoridad autoridad = BackEndController.obtenerAutoridad(embargo.getIdAutoridad());
+			if (autoridad != null) {
+				if (!autoridades.isEmpty()) {
+					for (Autoridad autoridad2 : autoridades) {
+						if (!autoridad2.getIdAutoridad().equals(autoridad.getIdAutoridad())) {
+							autoridades.add(autoridad);
+						}
+					}
+				} else {
+					autoridades.add(autoridad);
+				}
 			}
 		}
 
@@ -127,7 +138,7 @@ public class ClienteController {
 		Document document = new Document();
 		PdfWriter.getInstance(document, new FileOutputStream(dest));
 		document.open();
-				
+
 		PdfPTable table = new PdfPTable(7);
 		table.setSpacingBefore(10f);
 		table.setSpacingAfter(12.5f);
@@ -170,7 +181,7 @@ public class ClienteController {
 			}
 		}
 		document.add(table);
-			
+
 		document.close();
 	}
 

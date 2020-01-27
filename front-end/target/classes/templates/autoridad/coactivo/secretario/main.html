@@ -46,9 +46,13 @@
 								<label for="tipoEmbargo">Tipo Embargo</label> <select
 									th:field="*{tipoEmbargo}" class="form-control" id="tipoEmbargo">
 									<option value="" selected></option>
-									<option
-										th:each="tipoEmbargo : ${T(enumeraciones.TipoEmbargo).values()}"
-										th:value="${tipoEmbargo}" th:text="${tipoEmbargo}"></option>
+									<th:block
+										th:each="tipoEmbargo : ${T(enumeraciones.TipoEmbargo).values()}">
+										<th:block
+											th:if="${tipoEmbargo == T(enumeraciones.TipoEmbargo).COACTIVO}">
+											<option th:value="${tipoEmbargo}" th:text="${tipoEmbargo}"></option>
+										</th:block>
+									</th:block>
 								</select>
 							</div>
 							<div class="col-md-4">
@@ -88,6 +92,7 @@
 											</td>
 											<td><select class="form-control text-uppercase"
 												th:field="*{demandados[__${item.index}__].tipoIdentificacion}">
+													<option value="" selected></option>
 													<option
 														th:each="tipoIdentificacion : 
 											    		${T(enumeraciones.TipoIdentificacion).values()}"
@@ -97,14 +102,14 @@
 											<td><input name="nombres" type="text"
 												class="form-control text-uppercase"
 												th:field="*{demandados[__${item.index}__].nombres}"
-												onkeypress="return /[a-z]/i.test(event.key)"
+												onkeypress="return /[a-z- ]/i.test(event.key)"
 												onpaste="return false"
 												maxlength="50" 
 												/></td>
 											<td><input name="apellidos" type="text"
 												class="form-control text-uppercase"
 												th:field="*{demandados[__${item.index}__].apellidos}"
-												onkeypress="return /[a-z]/i.test(event.key)"
+												onkeypress="return /[a-z- ]/i.test(event.key)"
 												onpaste="return false"
 												maxlength="50" 
 												/></td>
@@ -115,12 +120,17 @@
 												onpaste="return false" 
 												maxlength="20" 
 												/></td>
-											<td><input name="fechaResolucion" type="text"
-												class="form-control text-uppercase"
-												th:field="*{demandados[__${item.index}__].fechaResolucion}" /></td>
+												<td><input name="fechaResolucion"
+												class="picker form-control"
+												th:field="*{demandados[__${item.index}__].fechaResolucion}"
+												readonly></td>
+											
 											<td><input name="montoAEmbargar" type="text"
 												class="form-control text-uppercase"
-												th:field="*{demandados[__${item.index}__].montoAEmbargar}" />
+												th:field="*{demandados[__${item.index}__].montoAEmbargar}"
+												onkeypress="return /[0-9]/i.test(event.key)"
+												onpaste="return false" maxlength="99999999999999" 
+												/>
 											</td>
 										</tr>
 									</tbody>

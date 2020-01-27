@@ -5,7 +5,7 @@
 	<!--<div th:fragment="fg-consultar">
 		Panel-->
 	<div class="content" th:each="embargo : ${embargos}">
-		<form action="#" th:action="@{/autoridad/coactivo/gestor/aplicar}"
+		<form action="#" th:action="@{'/autoridad/coactivo/gestor/data/'+${consulta}}"
 			method="post">
 			<nav th:replace="autoridad/coactivo/gestor/navbar :: panel"></nav>
 

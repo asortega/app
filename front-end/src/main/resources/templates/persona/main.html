@@ -23,6 +23,7 @@
 									<tr>
 										<td>Numero Proceso Embargo</td>
 										<td>Fecha Oficio Embargo</td>
+										<td>Estado Embargo</td>
 										<td>Nombre Autoridad</td>
 										<td>Direccion de la Autoridad</td>
 										<td>Departamento de la Autoridad</td>
@@ -35,6 +36,10 @@
 
 										<td class="text-uppercase" th:text="${embargo.numProceso}"></td>
 										<td class="text-uppercase" th:text="${embargo.fechaOficio}"></td>
+										<th:block th:switch="${embargo.embargoProcesado}">
+											<td th:case="true" class="text-uppercase">Aplicado</td>
+											<td th:case="false" class="text-uppercase">No Aplicado</td>
+										</th:block>
 										<td class="text-uppercase" th:text="${autoridad.nombre}"></td>
 										<td class="text-uppercase" th:text="${autoridad.direccion}" /></td>
 										<td class="text-uppercase" th:text="${autoridad.departamento}"></td>

@@ -26,7 +26,7 @@
 					</div>
 					<div class="modal-footer">
 						<form action="#"
-							th:action="@{'/autoridad/judicial/gestor/msj/'+${boton}}"
+							th:action="@{'/autoridad/judicial/gestor/msj/'+${boton}+'/'+${consulta}}"
 							th:object="${embargo}" method="post">
 							<input type="hidden" th:field="*{idAutoridad}"/> 
 							<input type="hidden" th:field="*{username}" /> 
@@ -34,7 +34,8 @@
 							<input type="hidden" th:field="*{numOficio}" /> 
 							<input type="hidden" th:field="*{fechaOficio}" /> 
 							<input type="hidden" th:field="*{tipoEmbargo}" /> 
-							<input type="hidden" th:field="*{montoAEmbargar}" />
+							<input type="hidden" th:field="*{montoAEmbargar}" /> 
+							<input type="hidden" th:field="*{numCuentaAgrario}" />
 							<input type="hidden" th:field="*{embargoProcesado}" />
 							<input type="hidden" th:field="*{embargado}" />
 							<table style="display:none;">

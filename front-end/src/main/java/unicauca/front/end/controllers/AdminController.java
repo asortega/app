@@ -21,6 +21,7 @@ import enumeraciones.Departamento;
 import enumeraciones.TipoAutoridad;
 import enumeraciones.TipoIdentificacion;
 import modelo.Autoridad;
+import modelo.EmbargoJudicial;
 import modelo.Usuario;
 import unicauca.front.end.service.Consulta;
 
@@ -58,7 +59,9 @@ public class AdminController {
 							if (autoridad.getUsuarios().get(tam - 1).getConfirmPassword()
 									.equals(autoridad.getUsuarios().get(tam - 1).getPassword())) {
 								autoridad.getUsuarios().get(tam - 1).setOwnedBy(autoridad.getIdAutoridad());
+								autoridad.getUsuarios().get(tam - 1).setIdAutoridad(autoridad.getIdAutoridad());
 								autoridad.getUsuarios().get(tam - 1).getRoles().add("ADMIN");
+
 								EmbargosController.guardarUsuario(autoridad.getUsuarios().get(tam - 1));
 								band = true;
 							} else {
@@ -176,11 +179,9 @@ public class AdminController {
 	public String consultaAut(@ModelAttribute(name = "autoridad") Autoridad autoridad, Model model,
 			RedirectAttributes flash) throws JSONException {
 
-		Consulta selector = new Consulta();
-		if (!consulta(autoridad).isEmpty()) {
-			selector.setSelector(consulta(autoridad));
+		if (emptyField(autoridad)) {
 			Gson gson = new Gson();
-			String consulta = gson.toJson(selector);
+			String consulta = gson.toJson(consulta(autoridad));
 			ArrayList<Autoridad> autoridades = jsontoAutoridades(consulta);
 			if (!autoridades.isEmpty()) {
 				model.addAttribute("titulo", "Consulta");
@@ -331,43 +332,47 @@ public class AdminController {
 		}
 	}
 
-	public HashMap<String, String> consulta(Autoridad autoridad) {
-		HashMap<String, String> campos = new HashMap<String, String>();
+	public Consulta consulta(Autoridad autoridad) {
 
+		Consulta consulta = new Consulta();
+		int tamUsuarios = autoridad.getUsuarios().size();
 		if (!autoridad.getIdAutoridad().isEmpty()) {
-			campos.put("idAutoridad", autoridad.getIdAutoridad());
+			consulta.searchNormal("idAutoridad", autoridad.getIdAutoridad());
 		}
 		if (!autoridad.getNombre().isEmpty()) {
-			campos.put("nombre", autoridad.getNombre());
+			consulta.searchNormal("nombre", autoridad.getNombre());
 		}
 		if (autoridad.getTipoAutoridad() != null) {
-			campos.put("tipoAutoridad", autoridad.getTipoAutoridad().toString());
+			consulta.searchNormal("tipoAutoridad", autoridad.getTipoAutoridad().toString());
 		}
 		if (!autoridad.getDireccion().isEmpty()) {
-			campos.put("direccion", autoridad.getDireccion());
+			consulta.searchNormal("direccion", autoridad.getDireccion());
 		}
 		if (autoridad.getDepartamento() != null) {
-			campos.put("departamento", autoridad.getDepartamento().toString());
+			consulta.searchNormal("departamento", autoridad.getDepartamento().toString());
 		}
 		if (autoridad.getCiudad() != null) {
-			campos.put("ciudad", autoridad.getCiudad().toString());
+			consulta.searchNormal("ciudad", autoridad.getCiudad().toString());
 		}
-		if (!autoridad.getUsuarios().get(0).getIdentificacion().isEmpty()) {
-			campos.put("identificacion", autoridad.getUsuarios().get(0).getIdentificacion());
+		if (!autoridad.getUsuarios().get(tamUsuarios - 1).getIdentificacion().isEmpty()) {
+			consulta.searchPersona("usuarios", "identificacion",
+					autoridad.getUsuarios().get(tamUsuarios - 1).getIdentificacion());
 		}
-		if (autoridad.getUsuarios().get(0).getTipoIdentificacion() != null) {
-			campos.put("tipoIdentificacion", autoridad.getUsuarios().get(0).getTipoIdentificacion().toString());
+		if (autoridad.getUsuarios().get(tamUsuarios - 1).getTipoIdentificacion() != null) {
+			consulta.searchPersona("usuarios", "tipoIdentificacion",
+					autoridad.getUsuarios().get(tamUsuarios - 1).getTipoIdentificacion().toString());
 		}
-		if (!autoridad.getUsuarios().get(0).getNombres().isEmpty()) {
-			campos.put("nombres", autoridad.getUsuarios().get(0).getNombres());
+		if (!autoridad.getUsuarios().get(tamUsuarios - 1).getNombres().isEmpty()) {
+			consulta.searchPersona("usuarios", "nombres", autoridad.getUsuarios().get(tamUsuarios - 1).getNombres());
 		}
-		if (!autoridad.getUsuarios().get(0).getApellidos().isEmpty()) {
-			campos.put("apellidos", autoridad.getUsuarios().get(0).getApellidos());
+		if (!autoridad.getUsuarios().get(tamUsuarios - 1).getApellidos().isEmpty()) {
+			consulta.searchPersona("usuarios", "apellidos",
+					autoridad.getUsuarios().get(tamUsuarios - 1).getApellidos());
 		}
-		if (!autoridad.getUsuarios().get(0).getUsername().isEmpty()) {
-			campos.put("username", autoridad.getUsuarios().get(0).getUsername());
+		if (!autoridad.getUsuarios().get(tamUsuarios - 1).getUsername().isEmpty()) {
+			consulta.searchPersona("usuarios", "username", autoridad.getUsuarios().get(tamUsuarios - 1).getUsername());
 		}
-		return campos;
+		return consulta;
 	}
 
 	public ArrayList<Autoridad> jsontoAutoridades(String consulta) throws JSONException {
@@ -424,11 +429,25 @@ public class AdminController {
 		return autoridad;
 	}
 
+	public boolean emptyField(Autoridad autoridad) {
+		int tamUsuarios = autoridad.getUsuarios().size();
+		return !autoridad.getIdAutoridad().isEmpty() || !autoridad.getNombre().isEmpty()
+				|| autoridad.getTipoAutoridad() != null || !autoridad.getDireccion().isEmpty()
+				|| autoridad.getDepartamento() != null || autoridad.getCiudad() != null
+				|| !autoridad.getUsuarios().get(tamUsuarios - 1).getIdentificacion().isEmpty()
+				|| autoridad.getUsuarios().get(tamUsuarios - 1).getTipoIdentificacion() != null
+				|| !autoridad.getUsuarios().get(tamUsuarios - 1).getNombres().isEmpty()
+				|| !autoridad.getUsuarios().get(tamUsuarios - 1).getApellidos().isEmpty()
+				|| !autoridad.getUsuarios().get(tamUsuarios - 1).getUsername().isEmpty()
+				|| !autoridad.getUsuarios().get(tamUsuarios - 1).getPassword().isEmpty()
+				|| !autoridad.getUsuarios().get(tamUsuarios - 1).getConfirmPassword().isEmpty();
+	}
+
 	private boolean checkAutoridad(Autoridad autoridad) {
-		return !autoridad.getIdAutoridad().isEmpty() && !autoridad.getNombre().isEmpty()
-				&& autoridad.getTipoAutoridad() != null && !autoridad.getDireccion().isEmpty()
-				&& autoridad.getDepartamento() != null && autoridad.getCiudad() != null
-				&& !autoridad.getUsuarios().isEmpty();
+		return !autoridad.getIdAutoridad().isEmpty() || !autoridad.getNombre().isEmpty()
+				|| autoridad.getTipoAutoridad() != null || !autoridad.getDireccion().isEmpty()
+				|| autoridad.getDepartamento() != null || autoridad.getCiudad() != null
+				|| !autoridad.getUsuarios().isEmpty();
 	}
 
 	private boolean checkUsuario(Usuario usuario) {

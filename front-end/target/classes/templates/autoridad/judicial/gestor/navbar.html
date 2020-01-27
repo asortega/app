@@ -12,16 +12,9 @@
 					<div class="btn-group" role="group" aria-label="Basic example">
 						<th:block th:switch="${boton}">
 							<th:block th:case="all">
-								<!--
-								<button id="button" type="button"
-									class="btn btn-primary border-right border-dark"
-									onclick="window.location.href='/autoridad/judicial/gestor/cargar'">Cargar</button> 
-								 
-								<span class="btn btn-primary border-right border-dark btn-file">
-									Cargar<input id="fileInput" type="file" name="file">
-								</span>-->
 								<!-- Button trigger modal -->
-								<button type="button" class="btn btn-primary border-right border-dark"
+								<button type="button"
+									class="btn btn-primary border-right border-dark"
 									data-toggle="modal" data-target="#exampleModal">
 									Cargar</button>
 								<button type="submit" name="action" value="aplicar"
@@ -31,17 +24,20 @@
 							</th:block>
 							<th:block th:case="consulta">
 								<th:block th:if=${embargo.embargoProcesado==false}>
-									<button type="submit"
+									<button type="submit" name="action" value="aplicar"
 										class="btn btn-primary border-right border-dark">Aplicar</button>
 								</th:block>
-								<button class="btn btn-primary border-right border-dark"
-									disabled>Desembargar</button>
+								<th:block th:if=${embargo.embargado==true}>
+									<button type="submit" name="action" value="desembargar"
+										class="btn btn-primary border-right border-dark">Desembargar</button>
+								</th:block>
 								<a class="btn btn-primary border-right border-dark"
-								th:href="@{'/autoridad/judicial/gestor/imprimir'}" target="_blank"> Imprimir</a>
+									th:href="@{'/autoridad/judicial/imprimir/'+${consulta}}"
+									target="_blank"> Imprimir</a>
 							</th:block>
 							<a class="btn btn-primary border-right border-dark"
 								th:href="@{'/autoridad/judicial/gestor'}"> Limpiar</a>
-							
+
 						</th:block>
 					</div>
 				</li>

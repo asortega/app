@@ -12,11 +12,6 @@
 					<div class="btn-group" role="group" aria-label="Basic example">
 						<th:block th:switch="${boton}">
 							<th:block th:case="all">
-							<!--	
-						<button type="button"
-							class="btn btn-primary border-right border-dark"
-							onclick="window.location.href='/autoridad/coactivo/gestor/cargar'">Cargar</button>-->
-
 								<!-- Button trigger modal -->
 								<button type="button"
 									class="btn btn-primary border-right border-dark"
@@ -29,13 +24,16 @@
 							</th:block>
 							<th:block th:case="consulta">
 								<th:block th:if=${embargo.embargoProcesado==false}>
-									<button type="submit"
+									<button type="submit" name="action" value="aplicar"
 										class="btn btn-primary border-right border-dark">Aplicar</button>
 								</th:block>
-								<button class="btn btn-primary border-right border-dark"
-									disabled>Desembargar</button>
-									<a class="btn btn-primary border-right border-dark"
-								th:href="@{'/autoridad/coactivo/imprimir'}" target="_blank"> Imprimir</a>
+								<th:block th:if=${embargo.embargado==true}>
+									<button type="submit" name="action" value="desembargar"
+										class="btn btn-primary border-right border-dark">Desembargar</button>
+								</th:block>
+								<a class="btn btn-primary border-right border-dark"
+									th:href="@{'/autoridad/coactivo/imprimir/'+${consulta}}"
+									target="_blank"> Imprimir</a>
 							</th:block>
 							<a class="btn btn-primary border-right border-dark"
 								th:href="@{'/autoridad/coactivo/gestor'}"> Limpiar</a>

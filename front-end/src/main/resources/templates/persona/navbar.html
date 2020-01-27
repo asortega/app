@@ -10,12 +10,16 @@
 			<ul class="nav navbar-nav mr-auto">
 				<li class="nav-item" id="css-lista">
 					<div class="btn-group" role="group" aria-label="Basic example">
-						<a class="btn btn-primary border-right border-dark"
-								th:href="@{'/persona/imprimir'}" target="_blank"> Imprimir</a>
+						<th:block th:switch="${boton}">
+							<th:block th:case="si">
+								<a class="btn btn-primary border-right border-dark"
+									th:href="@{'/persona/imprimir'}" target="_blank"> Imprimir</a>
+							</th:block>
+						</th:block>
 					</div>
 				</li>
 			</ul>
-		
+
 			<ul th:replace="layout :: login"></ul>
 
 		</div>

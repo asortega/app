@@ -5,11 +5,12 @@
 	<!--<div th:fragment="fg-consultar">
 		Panel-->
 	<div class="content" th:each="embargo : ${embargos}">
-		<form action="#" th:action="@{/autoridad/judicial/gestor/aplicar}"
+		<form action="#" th:action="@{'/autoridad/judicial/gestor/data/'+${consulta}}"
 			method="post">
 			<nav th:replace="autoridad/judicial/gestor/navbar :: panel"></nav>
 
 			<div class="container-fluid" id="css-contenido">
+				<div th:replace="layout :: alerts"></div>
 				<div class="card border-dark bg-light" id="card-inicio">
 					<div class="card-header text-white">
 						<div class="d-flex">
@@ -43,17 +44,7 @@
 								<label for="fechaOficio">Fecha Oficio</label>
 								<input type="text" name="fechaOficio" class="form-control"
 									th:value="${{embargo.fechaOficio}}" readonly>
-								<!-- 
-								<input type="text" id="picker" name="fechaOficio" class="form-control"
-									th:value="${embargo.fechaOficio}" readonly>
 								
-								<div class="input-group date" data-provide="datepicker">
-									<input type="text" class="form-control" id="fechaOficio"
-										 th:value="${embargo.fechaOficio}" readonly>
-									<div class="input-group-addon">
-										<span class="glyphicon glyphicon-th"></span>
-									</div>
-								</div> -->
 							</div>
 						</div>
 						<div class="form-row">
@@ -133,10 +124,6 @@
 					</div>
 				</div>
 			</div>
-			<input type="hidden" th:field="*{embargo.idAutoridad}" />
-			<input type="hidden" th:field="*{embargo.username}" />
-			<input type="hidden" th:field="*{embargo.embargoProcesado}" />
-			<input type="hidden" th:field="*{embargo.embargado}" />
 		</form>
 	</div>
 

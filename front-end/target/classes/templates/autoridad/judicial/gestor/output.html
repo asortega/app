@@ -28,18 +28,18 @@
 					<div class="modal-footer">
 
 						<form action="#"
-							th:action="@{'/autoridad/judicial/gestor/aplicar/'+${boton}+'/'+${mensajePasarela}}"
+							th:action="@{'/autoridad/judicial/gestor/aplicar/'+${boton}+'/'+${mensajePasarela}+'/'+${consulta}}"
 							th:object="${embargo}" method="post">
 							<input type="hidden" th:field="*{idAutoridad}"/> 
-							<input type="hidden" th:field="*{username}" /> <input
-								type="hidden" th:field="*{numProceso}" /> <input type="hidden"
-								th:field="*{numOficio}" /> <input type="hidden"
-								th:field="*{fechaOficio}" /> <input type="hidden"
-								th:field="*{tipoEmbargo}" /> <input type="hidden"
-								th:field="*{montoAEmbargar}" /> <input type="hidden"
-								th:field="*{numCuentaAgrario}" />
-								<input type="hidden" th:field="*{embargoProcesado}" />
-								<input type="hidden" th:field="*{embargado}" />
+							<input type="hidden" th:field="*{username}" /> 
+							<input type="hidden" th:field="*{numProceso}" /> 
+							<input type="hidden" th:field="*{numOficio}" /> 
+							<input type="hidden" th:field="*{fechaOficio}" /> 
+							<input type="hidden" th:field="*{tipoEmbargo}" /> 
+							<input type="hidden" th:field="*{montoAEmbargar}" /> 
+							<input type="hidden" th:field="*{numCuentaAgrario}" />
+							<input type="hidden" th:field="*{embargoProcesado}" />
+							<input type="hidden" th:field="*{embargado}" />
 							<table style="display: none;">
 								<tr th:each="demandante, item : *{demandantes}">
 									<td><input name="identificacion" type="text"
@@ -104,28 +104,3 @@
 	<footer th:replace="layout :: footer"></footer>
 </body>
 </html>
-<!-- 
-	<a class="btn btn-secondary"
-							th:href="@{'/judicial/main/' + ${embargoJudicial.idAutoridad}}">No
-							Aplicar Medida</a>
-	
-	th:href="@{'/judicial/main/' + ${embargoJudicial.idAutoridad}}"
-	
-
-	<!--Panel  
-	<nav th:replace="judicial/layout :: panel"></nav>
-	<div class="container-fluid" id="css-contenido">
-		<div class="card border-dark bg-light" id="card-inicio">
-			<div class="card-header text-white">
-				<div class="d-flex">
-					<div class="mt-2 mb-2" id="card-titulo" th:text="${form}"></div>
-				</div>
-			</div>
-			<div class="card-body">
-			<textarea rows="20" style="min-width:100%; resize: none;"
-					th:text="${mensajePasarela + '!' + mensaje}" readonly></textarea>
-			</div>
-		</div>
-	</div>
-
-	 -->

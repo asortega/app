@@ -54,12 +54,16 @@ import com.itextpdf.text.pdf.GrayColor;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+
+import controladores.EmbargosController;
 import enumeraciones.TipoEmbargo;
 import enumeraciones.TipoIdentificacion;
 import modelo.Demandado;
 import modelo.Embargo;
 import modelo.EmbargoCoactivo;
+
 import modelo.Intento;
+import modelo.Usuario;
 //import simulacion.SimulacionCasos;
 import simulacion.SimulacionPasarelas;
 import unicauca.front.end.service.Consulta;
@@ -70,11 +74,9 @@ import util.SessionHelper;
 @RequestMapping("/autoridad/coactivo")
 public class CoactivoController {
 
-	private Embargo embargo;
 	private SimulacionPasarelas simulacionPasarela;
 	private SessionHelper session;
 	private Service service;
-	private Authentication authentication;
 
 	public CoactivoController() {
 		simulacionPasarela = new SimulacionPasarelas();
@@ -82,10 +84,9 @@ public class CoactivoController {
 		service = new Service();
 	}
 
-	@Secured("ROLE_COACTIVO")
 	@GetMapping("/gestor")
 	public String crearEmbargo(Model model) {
-		embargo = new EmbargoCoactivo();
+		EmbargoCoactivo embargo = new EmbargoCoactivo();
 		embargo.getDemandados().add(new Demandado());
 		model.addAttribute("titulo", "App");
 		model.addAttribute("form", "Formulario");
@@ -100,7 +101,6 @@ public class CoactivoController {
 		boolean band = false;
 		EmbargoCoactivo embargoCoactivo = new EmbargoCoactivo();
 		if (!archivo.isEmpty()) {
-			// System.out.println("Nombre Archivo: "+archivo.getOriginalFilename());
 			FileInputStream file = new FileInputStream(new File(archivo.getOriginalFilename()));
 			XSSFWorkbook workbook = new XSSFWorkbook(file);
 			Sheet sheet = workbook.getSheetAt(0);
@@ -178,31 +178,87 @@ public class CoactivoController {
 		return embargoCoactivo;
 	}
 
-	
 	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=demandado")
-	public String addDemandado(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, Model model) {
-		embargo.getDemandados().add(new Demandado());
-		model.addAttribute("titulo", "Embargo");
-		model.addAttribute("form", "Formulario");
-		model.addAttribute("boton", "all");
-		return "autoridad/coactivo/gestor/main";
+	public String addDemandado(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, Model model,
+			RedirectAttributes flash) {
+		int tamDemandados = embargo.getDemandados().size();
+		if (isDemandado(embargo)) {
+			if (findDemandado(embargo.getDemandados().get(tamDemandados - 1).getIdentificacion(),
+					embargo.getDemandados()) == 1) {
+				embargo.getDemandados().add(new Demandado());
+			} else {
+				flash.addFlashAttribute("warning", "La identificacion del Demandado esta repetida");
+			}
+		} else {
+			flash.addFlashAttribute("warning", "Por favor Llenar el formulario del Demandado");
+		}
+		flash.addFlashAttribute("embargo", embargo);
+		flash.addFlashAttribute("boton", "all");
+
+		return "redirect:/autoridad/coactivo/gestor/main";
 	}
 
-	
 	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=aplicar")
 	public String aplicar(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, Model model,
 			RedirectAttributes flash) {
+		boolean band = false;
+		int tamDemandados = embargo.getDemandados().size();
+		if (isValid(embargo)) {
+			if (EmbargosController.obtenerEmbargo(embargo.getNumProceso()).isEmpty()) {
+				if (findDemandado(embargo.getDemandados().get(tamDemandados - 1).getIdentificacion(),
+						embargo.getDemandados()) == 1) {
+					try {
+						KieSession sessionStatefull = session.obtenerSesion();
+						String mensajePasarela = simulacionPasarela.llamarPasarelas(embargo.getDemandados());
+						sessionStatefull.insert(embargo);
+						sessionStatefull.fireAllRules();
+						session.cerrarSesion(sessionStatefull);
+						model.addAttribute("titulo", "Aplicar");
+						model.addAttribute("form", "Resultado");
+						model.addAttribute("embargo", embargo);
+						model.addAttribute("mensajePasarela", mensajePasarela);
+						model.addAttribute("mensaje", service.imprimir(embargo));
+						model.addAttribute("boton", "all");
+						band = true;
+					} catch (NullPointerException e) {
+						flash.addFlashAttribute("warning", "No se puede Aplicar,Por favor llenar el formulario");
+					}
+				} else {
+					flash.addFlashAttribute("warning", "La identificacion del Demandado esta repetida");
+				}
+			} else {
+				flash.addFlashAttribute("warning", "No se puede Aplicar,El embargo ya existe");
+				embargo.setNumProceso(null);
+			}
+		} else {
+			flash.addFlashAttribute("warning", "No se puede Aplicar,Por favor Llenar el formulario completo");
+		}
+		if (band == true) {
+			return "autoridad/coactivo/gestor/output";
+		} else {
+			flash.addFlashAttribute("boton", "all");
+			flash.addFlashAttribute("embargo", embargo);
+			return "redirect:/autoridad/coactivo/gestor/main";
+		}
+	}
+
+	@RequestMapping(value = "/gestor/data/{consulta}", method = RequestMethod.POST, params = "action=aplicar")
+	public String reaplicar(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, Model model,
+			RedirectAttributes flash, @PathVariable(value = "consulta") String consulta) {
+		EmbargoCoactivo embargofind = BackEndController.obtenerEmbargoCoactivo(embargo.getNumProceso());
 		try {
 			KieSession sessionStatefull = session.obtenerSesion();
-			String mensajePasarela = simulacionPasarela.llamarPasarelas(embargo.getDemandados());
-			sessionStatefull.insert(embargo);
+			String mensajePasarela = simulacionPasarela.llamarPasarelas(embargofind.getDemandados());
+			sessionStatefull.insert(embargofind);
 			sessionStatefull.fireAllRules();
 			session.cerrarSesion(sessionStatefull);
 			model.addAttribute("titulo", "Aplicar");
 			model.addAttribute("form", "Resultado");
+			model.addAttribute("embargo", embargofind);
 			model.addAttribute("mensajePasarela", mensajePasarela);
-			model.addAttribute("mensaje", service.imprimir(embargo));
-			model.addAttribute("boton", "all");
+			model.addAttribute("mensaje", service.imprimir(embargofind));
+			model.addAttribute("boton", "consulta");
+			model.addAttribute("consulta", consulta);
 			return "autoridad/coactivo/gestor/output";
 		} catch (NullPointerException e) {
 			flash.addFlashAttribute("warning", "No se puede Aplicar,Por favor llenar el formulario");
@@ -210,118 +266,131 @@ public class CoactivoController {
 		}
 	}
 
-	@PostMapping("/gestor/aplicar")
-	public String reaplicar(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, Model model,
-			RedirectAttributes flash) {
-		for (Demandado demandado : embargo.getDemandados()) {
-			System.out.println("Id Demandado:" + demandado.getIdentificacion());
-			System.out.println("Nombres demandado:" + demandado.getNombres());
+	@RequestMapping(value = "/gestor/data/{consulta}", method = RequestMethod.POST, params = "action=desembargar")
+	public String desembargar(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, RedirectAttributes flash,
+			@PathVariable(value = "consulta") String consulta) {
+		EmbargoCoactivo embargofind = BackEndController.obtenerEmbargoCoactivo(embargo.getNumProceso());
+		embargofind.setEmbargado(false);
+		EmbargosController.editarEmbargo(embargofind);
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		model.addAttribute("mensajePasarela", "Hola Mundo");
-		model.addAttribute("boton", "consulta");
-		return "autoridad/coactivo/gestor/output";
+		flash.addFlashAttribute("success", "El Embargo ha sido desembargado");
+		flash.addFlashAttribute("boton", "consulta");
+		flash.addAttribute("consulta", consulta);
+		return "redirect:/autoridad/coactivo/gestor/consulta";
+
 	}
 
-	@Secured("ROLE_COACTIVO")
-	@RequestMapping(value = "/gestor/aplicar/{boton}/{mensajePasarela}", method = RequestMethod.POST, params = "action=siaplicar")
-	public String aplicarMedida(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo,
-			@PathVariable(value = "mensajePasarela") String mensajePasarela,
-			@PathVariable(value = "boton") String boton, Model model, RedirectAttributes flash) {
-		flash.addFlashAttribute("success", "Embargo aplicado");
-		System.out.println("Boton SI Aplicar:" + boton);
-		System.out.println("Msj Pasarela:" + mensajePasarela);
-		System.out.println("Num proceso:" + embargo.getNumProceso());
-		System.out.println("Fecha Oficio:" + embargo.getFechaOficio());
-		System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
-		System.out.println("Estado: " + embargo.getEmbargoProcesado());
-		/*
-		 * System.out.println("Id embargo:" + embargo.getIdEmbargo());
-		 * System.out.println("Id Autoridad:" + embargo.getIdAutoridad());
-		 * System.out.println("Num proceso:" + embargo.getNumProceso());
-		 * System.out.println("Fecha Oficio:" + embargo.getFechaOficio());
-		 * System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
-		 * System.out.println("Num Cuenta Agrario:" + embargo.getNumCuentaAgrario());
-		 * for (Demandado demandado : embargo.getDemandados()) { ArrayList<Intento>
-		 * intentos = new ArrayList<>(); Intento intento = new Intento(LocalDate.now(),
-		 * true, mensajePasarela, demandado.getCuentas()); intentos.add(intento);
-		 * demandado.setIntentos(intentos); } model.addAttribute("titulo", "App");
-		 * model.addAttribute("form", "Formulario"); model.addAttribute("id",
-		 * embargo.getIdAutoridad()); embargo.setEmbargoProcesado(true); authentication
-		 * = SecurityContextHolder.getContext().getAuthentication(); String username =
-		 * authentication.getName(); embargo.setIdAutoridad(username);
-		 */
-		// EmbargosController.guardarEmbargo(embargo);
+	@RequestMapping(value = "/gestor/aplicar/{boton}/{mensajePasarela}/{consulta}", method = RequestMethod.POST, params = "action=siaplicar")
+	public String aplicarMedida(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, Model model,
+			RedirectAttributes flash, @PathVariable(value = "mensajePasarela") String mensajePasarela,
+			@PathVariable(value = "boton") String boton, @PathVariable(value = "consulta") String consulta) {
+
+		for (int i = 0; i < embargo.getDemandados().size(); i++) {
+			ArrayList<Intento> intentos = new ArrayList<>();
+			Intento intento = new Intento(LocalDate.now(), true, mensajePasarela,
+					embargo.getDemandados().get(i).getCuentas());
+			intentos.add(intento);
+			embargo.getDemandados().get(i).setIntentos(intentos);
+		}
+
+		model.addAttribute("titulo", "App");
+		model.addAttribute("form", "Formulario");
+		model.addAttribute("embargo", embargo);
+		model.addAttribute("boton", boton);
+		model.addAttribute("consulta", consulta);
+		embargo.setEmbargoProcesado(true);
+		embargo.setEmbargado(true);
+
+		if (boton.equals("all")) {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			String username = authentication.getName();
+			Usuario usuarioLogin = BackEndController.obtenerUsuario(username);
+			embargo.setIdAutoridad(usuarioLogin.getIdAutoridad());
+			embargo.setUsername(username);
+
+			EmbargosController.guardarEmbargo(embargo);
+		} else {
+			EmbargosController.editarEmbargo(embargo);
+		}
 		return "autoridad/coactivo/gestor/msj";
 	}
 
-	@Secured("ROLE_COACTIVO")
-	@RequestMapping(value = "/gestor/aplicar/{boton}/{mensajePasarela}", method = RequestMethod.POST, params = "action=noaplicar")
-	public String noAplicarMedida(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo,
-			@PathVariable(value = "mensajePasarela") String mensajePasarela, Model model, RedirectAttributes flash) {
-		flash.addFlashAttribute("success", "Embargo NO aplicado");
-		for (Demandado demandado : embargo.getDemandados()) {
+	@RequestMapping(value = "/gestor/aplicar/{boton}/{mensajePasarela}/{consulta}", method = RequestMethod.POST, params = "action=noaplicar")
+	public String noAplicarMedida(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, Model model,
+			@PathVariable(value = "mensajePasarela") String mensajePasarela, RedirectAttributes flash,
+			@PathVariable(value = "boton") String boton, @PathVariable(value = "consulta") String consulta) {
+
+		for (int i = 0; i < embargo.getDemandados().size(); i++) {
 			ArrayList<Intento> intentos = new ArrayList<>();
-			Intento intento = new Intento(LocalDate.now(), false, mensajePasarela, demandado.getCuentas());
+			Intento intento = new Intento(LocalDate.now(), false, mensajePasarela,
+					embargo.getDemandados().get(i).getCuentas());
 			intentos.add(intento);
-			demandado.setIntentos(intentos);
+			embargo.getDemandados().get(i).setIntentos(intentos);
 		}
-		model.addAttribute("titulo", "App");
-		model.addAttribute("form", "Formulario");
+
 		embargo.setEmbargoProcesado(false);
-		// authentication = SecurityContextHolder.getContext().getAuthentication();
-		// String username = authentication.getName();
-		// embargo.setIdAutoridad(username);
-		// EmbargosController.guardarEmbargo(embargo);
-		return "redirect:/autoridad/coactivo/gestor";
+		embargo.setEmbargado(false);
+
+		if (boton.equals("all")) {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			String username = authentication.getName();
+			Usuario usuarioLogin = BackEndController.obtenerUsuario(username);
+			embargo.setIdAutoridad(usuarioLogin.getIdAutoridad());
+			embargo.setUsername(username);
+			EmbargosController.guardarEmbargo(embargo);
+		} else {
+			EmbargosController.editarEmbargo(embargo);
+		}
+
+		flash.addFlashAttribute("embargo", embargo);
+		flash.addFlashAttribute("boton", boton);
+		flash.addFlashAttribute("success", "Embargo NO aplicado");
+
+		return "redirect:/autoridad/coactivo/gestor/main";
 	}
 
 	@RequestMapping(value = "/gestor/form", method = RequestMethod.POST, params = "action=consultar")
 	public String consultar(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, Model model,
 			RedirectAttributes flash) throws JSONException {
 
-		Consulta selector = new Consulta();
-		if (!consulta(embargo).isEmpty()) {
-			selector.setSelector(consulta(embargo));
+		if (emptyField(embargo)) {
 			Gson gson = new Gson();
-			String consulta = gson.toJson(selector);
-			System.out.println("Consulta: " + consulta);
-			//String mensaje = EmbargosController.consultaGeneral(consulta);
-			String mensaje="{\"key\":1,\"Record\":{\"idAutoridad\":\"AUT1\",\"numProceso\":\"PRC1\",\"fechaOficio\":{\"day\":23,\"month\":3,\"year\":2017},\"tipoEmbargo\":\"COACTIVO\",\"numCuentaAgrario\":92345654,\"demandados\":[{\"identificacion\":789,\"nombres\":\"SANTIAGO\",\"apellidos\":\"ORTEGA\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES178\",\"fechaResolucion\":{\"day\":18,\"month\":5,\"year\":2018},\"montoAEmbargar\":34500000},{\"identificacion\":678,\"nombres\":\"CARLOS\",\"apellidos\":\"RUIZ\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES478\",\"fechaResolucion\":{\"day\":10,\"month\":4,\"year\":2019},\"montoAEmbargar\":14800000}]}},{\"key\":2,\"Record\":{\"idAutoridad\":\"AUT2\",\"numProceso\":\"PRC2\",\"numOficio\":\"OFC2\",\"fechaOficio\":{\"day\":24,\"month\":8,\"year\":2018},\"tipoEmbargo\":\"JUDICIAL\",\"montoAEmbargar\":35600000,\"numCuentaAgrario\":92567432,\"demandados\":[{\"identificacion\":543,\"nombres\":\"JUAN\",\"apellidos\":\"RUIZ\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES348\",\"fechaResolucion\":{\"day\":23,\"month\":11,\"year\":2017},\"montoAEmbargar\":14500000},{\"identificacion\":212,\"nombres\":\"DIEGO\",\"apellidos\":\"LOPEZ\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES328\",\"fechaResolucion\":{\"day\":28,\"month\":10,\"year\":2018},\"montoAEmbargar\":24500000}]}}";
-			System.out.println("Mensaje: " + mensaje);
-			ArrayList<EmbargoCoactivo> embargos=onJson(mensaje);
-			model.addAttribute("titulo", "Consulta");
-			model.addAttribute("form", "Consultas");
-			model.addAttribute("embargos", embargos);
-			model.addAttribute("boton", "consulta");
-			
+			String consulta = gson.toJson(consulta(embargo, "gestor"));
+			ArrayList<EmbargoCoactivo> embargos = onJson(consulta);
+			if (!embargos.isEmpty()) {
+				model.addAttribute("titulo", "Consulta");
+				model.addAttribute("form", "Consultas");
+				model.addAttribute("embargos", embargos);
+				model.addAttribute("boton", "consulta");
+				model.addAttribute("consulta", consulta);
+				return "autoridad/coactivo/gestor/consulta";
+			} else {
+				flash.addFlashAttribute("warning", "No se encontraron resultados");
+				return "redirect:/autoridad/coactivo/gestor";
+			}
 		} else {
 			flash.addFlashAttribute("warning", "No se puede Consultar, Por favor ingresar el campo a consultar");
 			return "redirect:/autoridad/coactivo/gestor";
 		}
-		return "autoridad/coactivo/gestor/consulta";
+
 	}
-	
-	
 
-	@PostMapping("/gestor/msj/{boton}")
+	@PostMapping("/gestor/msj/{boton}/{consulta}")
 	public String inmsj(@ModelAttribute(name = "embargo") EmbargoCoactivo embargo, RedirectAttributes flash,
-			@PathVariable(value = "boton") String boton) {
+			@PathVariable(value = "boton") String boton, @PathVariable(value = "consulta") String consulta) {
 
-		System.out.println("Num proceso:" + embargo.getNumProceso());
-		System.out.println("Fecha Oficio:" + embargo.getFechaOficio());
-		System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
-		System.out.println("Num Cuenta Agrario:" + embargo.getNumCuentaAgrario());
-		for (Demandado demandado : embargo.getDemandados()) {
-			System.out.println("Id Demandado:" + demandado.getIdentificacion());
-			System.out.println("Nombres demandado:" + demandado.getNombres());
-			System.out.println("Fecha res:" + demandado.getFechaResolucion());
-		}
 		flash.addFlashAttribute("embargo", embargo);
 		flash.addFlashAttribute("boton", boton);
 		flash.addFlashAttribute("success", "Embargo aplicado");
 		if (boton.equals("all")) {
 			return "redirect:/autoridad/coactivo/gestor/main";
 		} else {
+			flash.addAttribute("consulta", consulta);
 			return "redirect:/autoridad/coactivo/gestor/consulta";
 		}
 	}
@@ -335,61 +404,55 @@ public class CoactivoController {
 	}
 
 	@GetMapping("/gestor/consulta")
-	public String outconsulta(Model model, @ModelAttribute(name = "embargo") EmbargoCoactivo embargo) {
-		
-		System.out.println("Num proceso:" + embargo.getNumProceso());
-		System.out.println("Fecha Oficio:" + embargo.getFechaOficio());
-		System.out.println("Tipo Embargo:" + embargo.getTipoEmbargo());
-		System.out.println("Num Cuenta Agrario:" + embargo.getNumCuentaAgrario());
-		ArrayList<EmbargoCoactivo> embargos = new ArrayList<>();
-		//EmbargoCoactivo prueba = (EmbargoCoactivo) SimulacionCasos.generarEmbargoDian();
-		//embargos.add(prueba);
-		embargo.setEmbargoProcesado(true);
-		embargos.add(embargo);
+	public String outconsulta(Model model, @ModelAttribute(name = "consulta") String consulta) throws JSONException {
+
+		ArrayList<EmbargoCoactivo> embargos = onJson(consulta);
 		model.addAttribute("titulo", "App");
 		model.addAttribute("form", "Formulario");
 		model.addAttribute("embargos", embargos);
 		return "autoridad/coactivo/gestor/consulta";
 	}
-	
+
 	@GetMapping("/secretario")
 	public String coactivo(Model model) {
 		EmbargoCoactivo embargoCoactivo = new EmbargoCoactivo();
 		embargoCoactivo.getDemandados().add(new Demandado());
+		model.addAttribute("boton", "all");
 		model.addAttribute("titulo", "App");
 		model.addAttribute("form", "Formulario");
 		model.addAttribute("embargoCoactivo", embargoCoactivo);
 
 		return "autoridad/coactivo/secretario/main";
 	}
-	
+
 	@RequestMapping(value = "/secretario/form", method = RequestMethod.POST, params = "action=consultar")
 	public String coactivo(@ModelAttribute(name = "embargoCoactivo") EmbargoCoactivo embargo, Model model,
 			RedirectAttributes flash) throws JSONException {
-		
-		Consulta selector = new Consulta();
-		if (!consulta(embargo).isEmpty()) {
-			selector.setSelector(consulta(embargo));
+
+		if (emptyField(embargo)) {
 			Gson gson = new Gson();
-			String consulta = gson.toJson(selector);
-			System.out.println("Consulta: " + consulta);
-			//String mensaje = EmbargosController.consultaGeneral(consulta);
-			String mensaje="{\"key\":1,\"Record\":{\"idAutoridad\":\"AUT1\",\"numProceso\":\"PRC1\",\"fechaOficio\":{\"day\":23,\"month\":3,\"year\":2017},\"tipoEmbargo\":\"COACTIVO\",\"numCuentaAgrario\":92345654,\"demandados\":[{\"identificacion\":789,\"nombres\":\"SANTIAGO\",\"apellidos\":\"ORTEGA\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES178\",\"fechaResolucion\":{\"day\":18,\"month\":5,\"year\":2018},\"montoAEmbargar\":34500000},{\"identificacion\":678,\"nombres\":\"CARLOS\",\"apellidos\":\"RUIZ\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES478\",\"fechaResolucion\":{\"day\":10,\"month\":4,\"year\":2019},\"montoAEmbargar\":14800000}]}},{\"key\":2,\"Record\":{\"idAutoridad\":\"AUT2\",\"numProceso\":\"PRC2\",\"numOficio\":\"OFC2\",\"fechaOficio\":{\"day\":24,\"month\":8,\"year\":2018},\"tipoEmbargo\":\"JUDICIAL\",\"montoAEmbargar\":35600000,\"numCuentaAgrario\":92567432,\"demandados\":[{\"identificacion\":543,\"nombres\":\"JUAN\",\"apellidos\":\"RUIZ\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES348\",\"fechaResolucion\":{\"day\":23,\"month\":11,\"year\":2017},\"montoAEmbargar\":14500000},{\"identificacion\":212,\"nombres\":\"DIEGO\",\"apellidos\":\"LOPEZ\",\"tipoIdentificacion\":\"NATURAL\",\"resEmbargo\":\"RES328\",\"fechaResolucion\":{\"day\":28,\"month\":10,\"year\":2018},\"montoAEmbargar\":24500000}]}}";
-			System.out.println("Mensaje: " + mensaje);
-			ArrayList<EmbargoCoactivo> embargos=onJson(mensaje);
-			model.addAttribute("titulo", "Consulta");
-			model.addAttribute("form", "Consultas");
-			model.addAttribute("embargos", embargos);
-			model.addAttribute("boton", "consulta");
-			
+			String consulta = gson.toJson(consulta(embargo, "secretario"));
+			ArrayList<EmbargoCoactivo> embargos = onJson(consulta);
+			if (!embargos.isEmpty()) {
+				model.addAttribute("titulo", "Consulta");
+				model.addAttribute("form", "Consultas");
+				model.addAttribute("embargos", embargos);
+				model.addAttribute("boton", "consulta");
+				model.addAttribute("consulta", consulta);
+				return "autoridad/coactivo/secretario/consulta";
+			} else {
+				flash.addFlashAttribute("warning", "No se encontraron resultados");
+				return "redirect:/autoridad/coactivo/secretario";
+			}
 		} else {
 			flash.addFlashAttribute("warning", "No se puede Consultar, Por favor ingresar el campo a consultar");
 			return "redirect:/autoridad/coactivo/secretario";
 		}
-		return "autoridad/coactivo/secretario/consulta";
 	}
-	
-	public ArrayList<EmbargoCoactivo> onJson(String mensaje) throws JSONException {
+
+	public ArrayList<EmbargoCoactivo> onJson(String consulta) throws JSONException {
+		String consultanew = consulta;
+		String mensaje = EmbargosController.consultaGeneral(consultanew);
 		ArrayList<EmbargoCoactivo> embargos = new ArrayList<EmbargoCoactivo>();
 		mensaje = "[" + mensaje + "]";
 		JSONArray myjson = new JSONArray(mensaje);
@@ -400,18 +463,14 @@ public class CoactivoController {
 		}
 		return embargos;
 	}
-	
-	@GetMapping("/imprimir")
-	public ResponseEntity<byte[]> print(Model model) throws DocumentException, IOException {
-		authentication = SecurityContextHolder.getContext().getAuthentication();
-		//String username = authentication.getName();
-		// Buscar todos los embargos registrados por el username
+
+	@GetMapping("/imprimir/{consulta}")
+	public ResponseEntity<byte[]> print(@PathVariable(value = "consulta") String consulta)
+			throws DocumentException, IOException, JSONException {
 
 		String filepdf = "file.pdf";
-		//ArrayList<EmbargoCoactivo> embargos = getAllEmbargos();
-
-		//createPdf(filepdf, embargos);
-
+		ArrayList<EmbargoCoactivo> embargos = onJson(consulta);
+		createPdf(filepdf, embargos);
 		HttpHeaders headers = new HttpHeaders();
 		Path pdfPath = Paths.get(filepdf);
 		byte[] pdf = Files.readAllBytes(pdfPath);
@@ -419,10 +478,59 @@ public class CoactivoController {
 		headers.add("Content-Disposition", "inline; filename=" + filepdf);
 		headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
 		ResponseEntity<byte[]> response = new ResponseEntity<byte[]>(pdf, headers, HttpStatus.OK);
-
 		return response;
-
 	}
+	
+	public int findDemandado(String id, ArrayList<Demandado> demandados) {
+		int cont = 0;
+		for (Demandado demandado : demandados) {
+			if (demandado.getIdentificacion().equals(id)) {
+				cont++;
+			}
+		}
+		return cont;
+	}
+
+	public boolean isDemandado(EmbargoCoactivo embargoCoactivo) {
+		int tamDemandados = embargoCoactivo.getDemandados().size();
+		return !embargoCoactivo.getDemandados().get(tamDemandados-1).getIdentificacion().isEmpty()
+				&& embargoCoactivo.getDemandados().get(tamDemandados-1).getTipoIdentificacion() != null
+				&& !embargoCoactivo.getDemandados().get(tamDemandados-1).getNombres().isEmpty()
+				&& !embargoCoactivo.getDemandados().get(tamDemandados-1).getApellidos().isEmpty()
+				&& !embargoCoactivo.getDemandados().get(tamDemandados-1).getResEmbargo().isEmpty()
+				&& embargoCoactivo.getDemandados().get(tamDemandados-1).getFechaResolucion() != null
+				&& embargoCoactivo.getDemandados().get(tamDemandados-1).getMontoAEmbargar() != null;
+	}
+
+	public boolean isValid(EmbargoCoactivo embargoCoactivo) {
+		int tamDemandados = embargoCoactivo.getDemandados().size();
+		return !embargoCoactivo.getNumProceso().isEmpty() && !embargoCoactivo.getNumOficio().isEmpty()
+				&& embargoCoactivo.getFechaOficio() != null && embargoCoactivo.getTipoEmbargo() != null
+				&& !embargoCoactivo.getNumCuentaAgrario().isEmpty()
+				&& !embargoCoactivo.getDemandados().get(tamDemandados - 1).getIdentificacion().isEmpty()
+				&& embargoCoactivo.getDemandados().get(tamDemandados - 1).getTipoIdentificacion() != null
+				&& !embargoCoactivo.getDemandados().get(tamDemandados - 1).getNombres().isEmpty()
+				&& !embargoCoactivo.getDemandados().get(tamDemandados - 1).getApellidos().isEmpty()
+				&& !embargoCoactivo.getDemandados().get(tamDemandados - 1).getResEmbargo().isEmpty()
+				&& embargoCoactivo.getDemandados().get(tamDemandados - 1).getFechaResolucion() != null
+				&& embargoCoactivo.getDemandados().get(tamDemandados - 1).getMontoAEmbargar() != null;
+	}
+	
+public boolean emptyField(EmbargoCoactivo embargoCoactivo) {
+		
+		int tamDemandados = embargoCoactivo.getDemandados().size();
+		return !embargoCoactivo.getNumProceso().isEmpty() || !embargoCoactivo.getNumOficio().isEmpty()
+				|| embargoCoactivo.getFechaOficio() != null || embargoCoactivo.getTipoEmbargo() != null
+				|| !embargoCoactivo.getNumCuentaAgrario().isEmpty()
+				|| !embargoCoactivo.getDemandados().get(tamDemandados - 1).getIdentificacion().isEmpty()
+				|| embargoCoactivo.getDemandados().get(tamDemandados - 1).getTipoIdentificacion() != null
+				|| !embargoCoactivo.getDemandados().get(tamDemandados - 1).getNombres().isEmpty()
+				|| !embargoCoactivo.getDemandados().get(tamDemandados - 1).getApellidos().isEmpty()
+				|| !embargoCoactivo.getDemandados().get(tamDemandados - 1).getResEmbargo().isEmpty()
+				|| embargoCoactivo.getDemandados().get(tamDemandados - 1).getFechaResolucion() != null
+				|| embargoCoactivo.getDemandados().get(tamDemandados - 1).getMontoAEmbargar() != null;
+	}
+
 
 	public void createPdf(String dest, ArrayList<EmbargoCoactivo> embargos)
 			throws FileNotFoundException, DocumentException {
@@ -451,7 +559,7 @@ public class CoactivoController {
 			document.add(table);
 
 			Font f = new Font(FontFamily.HELVETICA, 13, Font.NORMAL, GrayColor.GRAYWHITE);
-			PdfPCell cell = new PdfPCell(new Phrase("Demandantes", f));
+			PdfPCell cell = new PdfPCell(new Phrase("Demandados", f));
 			cell.setBackgroundColor(GrayColor.GRAYBLACK);
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 			cell.setColspan(7);
@@ -482,82 +590,70 @@ public class CoactivoController {
 			document.add(table2);
 			document.newPage();
 		}
-
 		document.close();
 	}
-	
-	/*
-	public ArrayList<EmbargoCoactivo> getAllEmbargos() {
-		ArrayList<EmbargoCoactivo> embargos = new ArrayList<EmbargoCoactivo>();
-		for (int i = 0; i < 2; i++) {
-			EmbargoCoactivo prueba = (EmbargoCoactivo) SimulacionCasos.generarEmbargoDian();
-			embargos.add(prueba);
-		}
-		return embargos;
-	}*/
 
-	public HashMap<String, String> consulta(EmbargoCoactivo embargo) {
-		HashMap<String, String> campos = new HashMap<String, String>();
+	public Consulta consulta(EmbargoCoactivo embargo, String band) {
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+		Usuario usuarioLogin = BackEndController.obtenerUsuario(username);
+		int tamDemandados = embargo.getDemandados().size();
+		Consulta consulta = new Consulta();
 
 		if (!embargo.getNumProceso().isEmpty()) {
-			campos.put("numProceso", embargo.getNumProceso());
-		} else {
-			if (!embargo.getNumOficio().isEmpty()) {
-				campos.put("numOficio", embargo.getNumOficio());
-			} else {
-				if (embargo.getFechaOficio() != null) {
-					campos.put("fechaOficio", embargo.getFechaOficio().toString());
-				} else {
-					if (embargo.getTipoEmbargo() != null) {
-						campos.put("tipoEmbargo", embargo.getTipoEmbargo().toString());
-					} else {
-						if (!embargo.getNumCuentaAgrario().isEmpty()) {
-							campos.put("numCuentaAgrario", embargo.getNumCuentaAgrario());
-						} else {
-
-							if (!embargo.getDemandados().get(0).getIdentificacion().isEmpty()) {
-								campos.put("identificacion", embargo.getDemandados().get(0).getIdentificacion());
-							} else {
-								if (embargo.getDemandados().get(0).getTipoIdentificacion() != null) {
-									campos.put("tipoIdentificacion",
-											embargo.getDemandados().get(0).getTipoIdentificacion().toString());
-								} else {
-									if (!embargo.getDemandados().get(0).getNombres().isEmpty()) {
-										campos.put("nombres", embargo.getDemandados().get(0).getNombres());
-									} else {
-										if (!embargo.getDemandados().get(0).getApellidos().isEmpty()) {
-											campos.put("apellidos", embargo.getDemandados().get(0).getApellidos());
-										} else {
-											if (!embargo.getDemandados().get(0).getResEmbargo().isEmpty()) {
-												campos.put("resEmbargo",
-														embargo.getDemandados().get(0).getResEmbargo());
-											} else {
-												if (embargo.getDemandados().get(0).getFechaResolucion() != null) {
-													campos.put("fechaResolucion", embargo.getDemandados().get(0)
-															.getFechaResolucion().toString());
-												} else {
-													if (embargo.getDemandados().get(0).getMontoAEmbargar() != null) {
-														campos.put("montoAEmbargar", embargo.getDemandados().get(0)
-																.getMontoAEmbargar().toString());
-													}
-												}
-											}
-										}
-									}
-								}
-
-							}
-						}
-					}
-				}
-			}
+			consulta.searchNormal("numProceso", embargo.getNumProceso());
 		}
-		return campos;
+		if (!embargo.getNumOficio().isEmpty()) {
+			consulta.searchNormal("numOficio", embargo.getNumOficio());
+		}
+		if (embargo.getFechaOficio() != null) {
+			consulta.searchNormal("fechaOficio", embargo.getFechaOficio().toString());
+		}
+		if (embargo.getTipoEmbargo() != null) {
+			consulta.searchNormal("tipoEmbargo", embargo.getTipoEmbargo().toString());
+		}
+		if (!embargo.getNumCuentaAgrario().isEmpty()) {
+			consulta.searchNormal("numCuentaAgrario", embargo.getNumCuentaAgrario());
+		}
+		if (!embargo.getDemandados().get(tamDemandados-1).getIdentificacion().isEmpty()) {
+			consulta.searchPersona("demandados","identificacion", embargo.getDemandados().get(tamDemandados-1).getIdentificacion());
+		}
+		if (embargo.getDemandados().get(tamDemandados-1).getTipoIdentificacion() != null) {
+			consulta.searchPersona("demandados","tipoIdentificacion", embargo.getDemandados().get(tamDemandados-1).getTipoIdentificacion().toString());
+		}
+		if (!embargo.getDemandados().get(tamDemandados-1).getNombres().isEmpty()) {
+			consulta.searchPersona("demandados","nombres", embargo.getDemandados().get(tamDemandados-1).getNombres());
+		}
+		if (!embargo.getDemandados().get(tamDemandados-1).getApellidos().isEmpty()) {
+			consulta.searchPersona("demandados","apellidos", embargo.getDemandados().get(tamDemandados-1).getApellidos());
+		}
+		if (!embargo.getDemandados().get(tamDemandados-1).getResEmbargo().isEmpty()) {
+			consulta.searchPersona("demandados","resEmbargo", embargo.getDemandados().get(tamDemandados-1).getResEmbargo());
+		}
+		if (embargo.getDemandados().get(tamDemandados-1).getFechaResolucion() != null) {
+			consulta.searchPersona("demandados","fechaResolucion", embargo.getDemandados().get(tamDemandados-1).getFechaResolucion().toString());
+		}
+		if (embargo.getDemandados().get(tamDemandados-1).getMontoAEmbargar() != null) {
+			consulta.searchPersona("demandados","montoAEmbargar", embargo.getDemandados().get(tamDemandados-1).getMontoAEmbargar().toString());
+		}
+		
+		if (band.equals("gestor")) {
+			consulta.searchNormal("username", username);
+		} else {
+			consulta.searchNormal("idAutoridad", usuarioLogin.getIdAutoridad());
+		}
+		
+		return consulta;
 
 	}
 
 	public EmbargoCoactivo jsontoObject(JSONObject jsonRecord) throws JSONException {
 		EmbargoCoactivo embargoCoactivo = new EmbargoCoactivo();
+
+		if (jsonRecord.has("idAutoridad")) {
+			embargoCoactivo.setIdAutoridad(jsonRecord.getString("idAutoridad"));
+		}
 
 		if (jsonRecord.has("numProceso")) {
 			embargoCoactivo.setNumProceso(jsonRecord.getString("numProceso"));
@@ -577,6 +673,12 @@ public class CoactivoController {
 		if (jsonRecord.has("numCuentaAgrario")) {
 			embargoCoactivo.setNumCuentaAgrario(jsonRecord.getString("numCuentaAgrario"));
 		}
+		if (jsonRecord.has("embargoProcesado")) {
+			embargoCoactivo.setEmbargoProcesado(jsonRecord.getBoolean("embargoProcesado"));
+		}
+		if (jsonRecord.has("embargado")) {
+			embargoCoactivo.setEmbargado(jsonRecord.getBoolean("embargado"));
+		}
 		ArrayList<Demandado> demandados = new ArrayList<Demandado>();
 		if (jsonRecord.has("demandados")) {
 			JSONArray jsonDemandados = jsonRecord.getJSONArray("demandados");
@@ -589,10 +691,9 @@ public class CoactivoController {
 				demandado.setNombres(jsonDemandados.getJSONObject(k).getString("nombres"));
 				demandado.setApellidos(jsonDemandados.getJSONObject(k).getString("apellidos"));
 				demandado.setResEmbargo(jsonDemandados.getJSONObject(k).getString("resEmbargo"));
-				JSONObject jsonFecha =jsonDemandados.getJSONObject(k).getJSONObject("fechaResolucion");
-				LocalDate localDate =LocalDate.of(Integer.parseInt(jsonFecha.getString("year")),
-				Integer.parseInt(jsonFecha.getString("month")),
-				Integer.parseInt(jsonFecha.getString("day")));
+				JSONObject jsonFecha = jsonDemandados.getJSONObject(k).getJSONObject("fechaResolucion");
+				LocalDate localDate = LocalDate.of(Integer.parseInt(jsonFecha.getString("year")),
+						Integer.parseInt(jsonFecha.getString("month")), Integer.parseInt(jsonFecha.getString("day")));
 				demandado.setFechaResolucion(localDate);
 				demandado
 						.setMontoAEmbargar(new BigDecimal(jsonDemandados.getJSONObject(k).getString("montoAEmbargar")));

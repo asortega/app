@@ -29,81 +29,59 @@
 						<div class="col-md-4">
 							<label>Numero Proceso</label> <input type="text"
 								class="form-control text-uppercase"
-								th:value="${embargo.numProceso}">
+								th:value="${embargo.numProceso}" readonly>
 						</div>
 						<div class="col-md-4">
 							<label>Numero Oficio</label> <input type="text"
 								class="form-control text-uppercase"
-								th:value="${embargo.numOficio}">
+								th:value="${embargo.numOficio}" readonly>
 						</div>
 						<div class="col-md-4">
-							<label for="fechaOficio">Fecha Oficio</label>
-							<div class="input-group date" data-provide="datepicker">
-								<input type="text" class="form-control" id="fechaOficio"
-									th:value="${embargo.fechaOficio}" readonly>
-								<div class="input-group-addon">
-									<span class="glyphicon glyphicon-th"></span>
-								</div>
-							</div>
+							<label for="fechaOficio">Fecha Oficio</label> <input type="text"
+								name="fechaOficio" class="form-control"
+								th:value="${embargo.fechaOficio}" readonly>
 						</div>
 					</div>
 					<div class="form-row">
 						<div class="col-md-4">
-							<label for="tipoEmbargo">Tipo Embargo</label><input
-								type="text" class="form-control"
-								th:value="${embargo.tipoEmbargo}">
+							<label for="tipoEmbargo">Tipo Embargo</label><input type="text"
+								class="form-control" th:value="${embargo.tipoEmbargo}" readonly>
 						</div>
-						<div class="col-md-4">
-							<label for="montoEmbargar">Monto a Embargar</label> <input
-								type="text" class="form-control" id="montoEmbargar"
-								th:value="${embargo.montoAEmbargar}">
-						</div>
+						
 						<div class="col-md-4">
 							<label for="numCuenta">Numero Cuenta Banco Agrario</label> <input
 								type="text" class="form-control" id="numOficio"
-								th:value="${embargo.numCuentaAgrario}">
+								th:value="${embargo.numCuentaAgrario}" readonly>
 						</div>
 					</div>
 
 
 					<div class="card my-2">
 						<div class="card-body">
-							<table class="tb1const-judicial table table-bordered"
-								style="width: 100%">
-								<thead>
-									<tr>
-										<td>Identificacion</td>
-										<td>Tipo Identificacion</td>
-										<td>Nombres</td>
-										<td>Apellidos</td>
-									</tr>
-								</thead>
-								<tbody>
-									<tr th:each="demandante : ${embargo.demandantes}">
-										<td class="text-uppercase" th:text="${demandante.identificacion}"></td>
-										<td class="text-uppercase" th:text="${demandante.tipoIdentificacion}"></td>
-										<td class="text-uppercase" th:text="${demandante.nombres}"></td>
-										<td class="text-uppercase" th:text="${demandante.apellidos}" /></td>
-									</tr>
-								</tbody>
-							</table>
+
 							<table class="tb2const-judicial table table-bordered"
 								style="width: 100%">
 								<thead>
 									<tr>
-										<td>Identificacion</td>
-										<td>Tipo Identificacion</td>
-										<td>Nombres</td>
-										<td>Apellidos</td>
-										<td>Monto a Embargar</td>
+										<td style="width: 13%">Identificacion</td>
+										<td style="width: 12%">Tipo Identificacion</td>
+										<td style="width: 15%">Nombres</td>
+										<td style="width: 15%">Apellidos</td>
+										<td style="width: 15%">Resolucion Embargo</td>
+										<td style="width: 15%">Fecha Resolucion</td>
+										<td style="width: 15%">Monto a Embargar</td>
 									</tr>
 								</thead>
 								<tbody>
 									<tr th:each="demandado : ${embargo.demandados}">
-										<td class="text-uppercase" th:text="${demandado.identificacion}"></td>
-										<td class="text-uppercase" th:text="${demandado.tipoIdentificacion}">
+										<td class="text-uppercase"
+											th:text="${demandado.identificacion}"></td>
+										<td class="text-uppercase"
+											th:text="${demandado.tipoIdentificacion}">
 										<td class="text-uppercase" th:text="${demandado.nombres}"></td>
 										<td class="text-uppercase" th:text="${demandado.apellidos}"></td>
+										<td class="text-uppercase" th:text="${demandado.resEmbargo}"></td>
+										<td class="text-uppercase" th:text="${demandado.fechaResolucion}"></td>
 										<td th:text="${demandado.montoAEmbargar}"></td>
 									</tr>
 								</tbody>

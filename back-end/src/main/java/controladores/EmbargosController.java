@@ -40,6 +40,7 @@ public class EmbargosController {
 	public static void guardarEmbargo(Embargo embargo) {
 
 		String embargoJson = gson.toJson(embargo);
+		System.out.println("json: "+embargoJson);
 		String[] arguments = { embargoJson };
 		Collection<ProposalResponse> responses = Util.createInvoke("crearEmbargo", arguments);
 		for (ProposalResponse res : responses) {

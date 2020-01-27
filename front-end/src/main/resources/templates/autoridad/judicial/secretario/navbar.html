@@ -1,29 +1,37 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-	
+
 	<nav class="navbar navbar-expand-md navbar-dark" id="css-panel"
 		th:fragment="panel">
-		
+
 		<div class="collapse navbar-collapse" id="css-menu">
-			
-			<ul class="nav navbar-nav mr-auto" >
+
+			<ul class="nav navbar-nav mr-auto">
 				<li class="nav-item" id="css-lista">
 					<div class="btn-group" role="group" aria-label="Basic example">
-						
-						<button type="submit" name="action" value="consultar"
-							class="btn btn-primary border-right border-dark">Consultar</button>
-						<a class="btn btn-primary border-right border-dark"
-								th:href="@{'/autoridad/judicial/gestor/imprimir'}" target="_blank"> Imprimir</a>
+						<th:block th:switch="${boton}">
+							<th:block th:case="all">
+								<button type="submit" name="action" value="consultar"
+									class="btn btn-primary border-right border-dark">Consultar</button>
+							</th:block>
+							<th:block th:case="consulta">
+								<a class="btn btn-primary border-right border-dark"
+									th:href="@{'/autoridad/judicial/imprimir/'+${consulta}}"
+									target="_blank"> Imprimir</a>
+							</th:block>
+							<a class="btn btn-primary border-right border-dark"
+								th:href="@{'/autoridad/judicial/secretario'}"> Limpiar</a>
+						</th:block>
 					</div>
 				</li>
 			</ul>
-			
+
 			<ul th:replace="layout :: login"></ul>
 
 		</div>
 	</nav>
-	
+
 
 </body>
 </html>
